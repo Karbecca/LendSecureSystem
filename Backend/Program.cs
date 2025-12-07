@@ -62,6 +62,8 @@ builder.Services.AddCors(options =>
 // 4. DEPENDENCY INJECTION - SERVICES
 // ========================================
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<JwtHelper>();
 
 // ========================================

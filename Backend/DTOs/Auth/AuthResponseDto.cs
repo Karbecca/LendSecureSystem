@@ -1,4 +1,4 @@
-﻿
+﻿using LendSecureSystem.DTOs.Auth;
 
 namespace LendSecureSystem.DTOs.Auth
 {
