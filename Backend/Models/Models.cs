@@ -30,13 +30,13 @@ namespace LendSecureSystem.Models
         public string Role { get; set; }
 
         [Column("mfa_enabled")]
-        public bool MfaEnabled { get; set; } = false;
+        public bool? MfaEnabled { get; set; } = false;
 
         [Column("created_at")]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
 
         [Column("updated_at")]
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? UpdatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation Properties
         public UserProfile Profile { get; set; }
