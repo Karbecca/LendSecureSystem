@@ -12,10 +12,12 @@ namespace LendSecureSystem.Services
     public class FundingService : IFundingService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IRepaymentService _repaymentService;
 
-        public FundingService(ApplicationDbContext context)
+        public FundingService(ApplicationDbContext context, IRepaymentService repaymentService)
         {
             _context = context;
+            _repaymentService = repaymentService;
         }
 
         public async Task<FundingResponseDto> FundLoanAsync(Guid lenderId, FundLoanRequestDto request)
@@ -80,9 +82,41 @@ namespace LendSecureSystem.Services
             if (totalFunded + request.Amount >= loan.AmountRequested)
             {
                 loan.Status = "Funded";
-            }
+                
+                // Credit borrower's wallet with the loan amount
+                var borrowerWallet = await _context.Wallets
+                    .FirstOrDefaultAsync(w => w.UserId == loan.BorrowerId);
 
-            await _context.SaveChangesAsync();
+                if (borrowerWallet != null)
+                {
+                    borrowerWallet.Balance += loan.AmountRequested;
+                    borrowerWallet.UpdatedAt = DateTime.UtcNow;
+
+                    // Create transaction for borrower receiving loan
+                    var borrowerTransaction = new WalletTransaction
+                    {
+                        TxnId = Guid.NewGuid(),
+                        WalletId = borrowerWallet.WalletId,
+                        TxnType = "Credit - Loan Received",
+                        Amount = loan.AmountRequested,
+                        Currency = borrowerWallet.Currency,
+                        RelatedLoanId = request.LoanId,
+                        CreatedAt = DateTime.UtcNow
+                    };
+
+                    _context.WalletTransactions.Add(borrowerTransaction);
+                }
+                
+                // Save changes first to ensure loan status is updated
+                await _context.SaveChangesAsync();
+                
+                // Generate repayment schedule
+                await _repaymentService.GenerateScheduleAsync(request.LoanId);
+            }
+            else
+            {
+                await _context.SaveChangesAsync();
+            }
 
             // Load lender for response
             var lender = await _context.Users

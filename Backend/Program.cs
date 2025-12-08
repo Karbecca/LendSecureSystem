@@ -69,6 +69,7 @@ builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<IKycService, KycService>();
 builder.Services.AddScoped<ILoanService, LoanService>();
 builder.Services.AddScoped<IWalletService, WalletService>();
+builder.Services.AddScoped<IRepaymentService, RepaymentService>();
 builder.Services.AddScoped<IFundingService, FundingService>();
 
 // ========================================
