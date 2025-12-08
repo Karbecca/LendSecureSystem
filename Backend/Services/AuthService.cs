@@ -100,7 +100,7 @@ namespace LendSecureSystem.Services
                     FirstName = profile.FirstName,
                     LastName = profile.LastName,
                     Phone = profile.Phone,
-                    CreatedAt = user.CreatedAt
+                    CreatedAt = user.CreatedAt ?? DateTime.MinValue
                 }
             };
         }
@@ -156,7 +156,7 @@ namespace LendSecureSystem.Services
                     FirstName = user.Profile?.FirstName,
                     LastName = user.Profile?.LastName,
                     Phone = user.Profile?.Phone,
-                    CreatedAt = user.CreatedAt
+                    CreatedAt = user.CreatedAt ?? DateTime.MinValue
                 }
             };
         }
@@ -188,7 +188,7 @@ namespace LendSecureSystem.Services
                 FirstName = user.Profile?.FirstName,
                 LastName = user.Profile?.LastName,
                 Phone = user.Profile?.Phone,
-                CreatedAt = user.CreatedAt
+                CreatedAt = user.CreatedAt ?? DateTime.MinValue
             };
         }
     }

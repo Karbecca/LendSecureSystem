@@ -35,8 +35,8 @@ namespace LendSecureSystem.Services
                 Phone = user.Profile?.Phone,
                 Dob = user.Profile?.Dob,
                 Address = user.Profile?.Address,
-                CreatedAt = user.CreatedAt,
-                UpdatedAt = user.UpdatedAt
+                CreatedAt = user.CreatedAt ?? DateTime.MinValue,
+                UpdatedAt = user.UpdatedAt ?? DateTime.MinValue
             };
         }
 
@@ -102,7 +102,7 @@ namespace LendSecureSystem.Services
                         ? $"{u.Profile.FirstName} {u.Profile.LastName}".Trim()
                         : "N/A",
                     Phone = u.Profile != null ? u.Profile.Phone : "N/A",
-                    CreatedAt = u.CreatedAt
+                    CreatedAt = u.CreatedAt ?? DateTime.MinValue
                 })
                 .ToListAsync();
 
