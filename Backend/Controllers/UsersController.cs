@@ -21,6 +21,7 @@ namespace LendSecureSystem.Controllers
         /// <summary>
         /// Get current user's profile
         /// </summary>
+        [Authorize(Policy = "ViewProfilePermission")]
         [HttpGet("profile")]
         public async Task<IActionResult> GetProfile()
         {
@@ -53,6 +54,7 @@ namespace LendSecureSystem.Controllers
         /// <summary>
         /// Update current user's profile
         /// </summary>
+        [Authorize(Policy = "UpdateProfilePermission")]
         [HttpPut("profile")]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequestDto request)
         {
@@ -89,7 +91,7 @@ namespace LendSecureSystem.Controllers
         /// <summary>
         /// Get all users (Admin only)
         /// </summary>
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "ViewAllUsersPermission")]
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -117,7 +119,7 @@ namespace LendSecureSystem.Controllers
         /// <summary>
         /// Get user by ID (Admin only)
         /// </summary>
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "ViewAnyUserPermission")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(Guid id)
         {
@@ -144,7 +146,7 @@ namespace LendSecureSystem.Controllers
         /// <summary>
         /// Update user role (Admin only)
         /// </summary>
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "UpdateUserRolePermission")]
         [HttpPut("{id}/role")]
         public async Task<IActionResult> UpdateUserRole(Guid id, [FromBody] UpdateRoleRequestDto request)
         {

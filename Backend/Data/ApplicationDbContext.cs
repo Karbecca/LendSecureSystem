@@ -20,13 +20,14 @@ namespace LendSecureSystem.Data
         public DbSet<Wallet> Wallets { get; set; }
         public DbSet<WalletTransaction> WalletTransactions { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
+        public DbSet<Permission> Permissions { get; set; }  // NEW
+        public DbSet<UserPermission> UserPermissions { get; set; }  // NEW
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             // Configure relationships and constraints
-
             // User -> UserProfile (One-to-One)
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Profile)
@@ -83,6 +84,25 @@ namespace LendSecureSystem.Data
                 .HasForeignKey(t => t.WalletId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // User -> UserPermissions (One-to-Many) - NEW
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.UserPermissions)
+                .WithOne(up => up.User)
+                .HasForeignKey(up => up.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Permission -> UserPermissions (One-to-Many) - NEW
+            modelBuilder.Entity<Permission>()
+                .HasMany(p => p.UserPermissions)
+                .WithOne(up => up.Permission)
+                .HasForeignKey(up => up.PermissionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Unique constraint for UserPermissions - NEW
+            modelBuilder.Entity<UserPermission>()
+                .HasIndex(up => new { up.UserId, up.PermissionId })
+                .IsUnique();
+
             // Set default values
             modelBuilder.Entity<User>()
                 .Property(u => u.CreatedAt)
@@ -95,6 +115,11 @@ namespace LendSecureSystem.Data
             // Ensure unique email
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
+                .IsUnique();
+
+            // Ensure unique permission name - NEW
+            modelBuilder.Entity<Permission>()
+                .HasIndex(p => p.PermissionName)
                 .IsUnique();
         }
     }

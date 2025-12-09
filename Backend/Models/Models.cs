@@ -45,6 +45,8 @@ namespace LendSecureSystem.Models
         public ICollection<LoanFunding> Fundings { get; set; }
         public ICollection<Wallet> Wallets { get; set; }
         public ICollection<AuditLog> AuditLogs { get; set; }
+
+        public ICollection<UserPermission> UserPermissions { get; set; }
     }
 
     // ========================================

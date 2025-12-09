@@ -9,7 +9,7 @@ namespace LendSecureSystem.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public class AdminController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -24,6 +24,7 @@ namespace LendSecureSystem.Controllers
         /// <summary>
         /// Get admin dashboard statistics
         /// </summary>
+        [Authorize(Policy = "ViewDashboardPermission")]
         [HttpGet("dashboard")]
         public async Task<IActionResult> GetDashboardStats()
         {
@@ -64,6 +65,7 @@ namespace LendSecureSystem.Controllers
         /// <summary>
         /// Get audit logs with pagination and filtering
         /// </summary>
+        [Authorize(Policy = "ViewAuditLogsPermission")]
         [HttpGet("audit-logs")]
         public async Task<IActionResult> GetAuditLogs(
             [FromQuery] int page = 1,
@@ -117,6 +119,7 @@ namespace LendSecureSystem.Controllers
         /// <summary>
         /// Get compliance report (summary of system activity)
         /// </summary>
+        [Authorize(Policy = "ViewCompliancePermission")]
         [HttpGet("compliance-report")]
         public async Task<IActionResult> GetComplianceReport()
         {

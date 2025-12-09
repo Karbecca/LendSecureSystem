@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -42,7 +43,41 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization();
+// ========================================
+// AUTHORIZATION - PBAC POLICIES
+// ========================================
+builder.Services.AddAuthorization(options =>
+{
+    // Auth Permissions
+    options.AddPolicy("ViewProfilePermission", policy =>
+        policy.Requirements.Add(new LendSecureSystem.Authorization.PermissionRequirement("auth.view_profile")));
+
+    options.AddPolicy("UpdateProfilePermission", policy =>
+        policy.Requirements.Add(new LendSecureSystem.Authorization.PermissionRequirement("auth.update_profile")));
+
+    // User Management Permissions
+    options.AddPolicy("ViewAllUsersPermission", policy =>
+        policy.Requirements.Add(new LendSecureSystem.Authorization.PermissionRequirement("users.view_all")));
+
+    options.AddPolicy("ViewAnyUserPermission", policy =>
+        policy.Requirements.Add(new LendSecureSystem.Authorization.PermissionRequirement("users.view_any")));
+
+    options.AddPolicy("UpdateUserRolePermission", policy =>
+        policy.Requirements.Add(new LendSecureSystem.Authorization.PermissionRequirement("users.update_role")));
+
+    // Admin Dashboard Permissions
+    options.AddPolicy("ViewDashboardPermission", policy =>
+        policy.Requirements.Add(new LendSecureSystem.Authorization.PermissionRequirement("admin.view_dashboard")));
+
+    options.AddPolicy("ViewAuditLogsPermission", policy =>
+        policy.Requirements.Add(new LendSecureSystem.Authorization.PermissionRequirement("admin.view_audit_logs")));
+
+    options.AddPolicy("ViewCompliancePermission", policy =>
+        policy.Requirements.Add(new LendSecureSystem.Authorization.PermissionRequirement("admin.view_compliance")));
+});
+
+// Register permission authorization handler
+builder.Services.AddSingleton<IAuthorizationHandler, LendSecureSystem.Authorization.PermissionAuthorizationHandler>();
 
 // ========================================
 // 3. CORS CONFIGURATION
