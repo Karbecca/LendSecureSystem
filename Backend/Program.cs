@@ -100,6 +100,12 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<JwtHelper>();
+builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+builder.Services.AddScoped<IKycService, KycService>();
+builder.Services.AddScoped<ILoanService, LoanService>();
+builder.Services.AddScoped<IWalletService, WalletService>();
+builder.Services.AddScoped<IRepaymentService, RepaymentService>();
+builder.Services.AddScoped<IFundingService, FundingService>();
 
 // ========================================
 // 5. CONTROLLERS
@@ -164,6 +170,9 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = "swagger"; // Swagger at /swagger
     });
 }
+
+// Static Files
+app.UseStaticFiles();
 
 // HTTPS Redirection
 app.UseHttpsRedirection();
