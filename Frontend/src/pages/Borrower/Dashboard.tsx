@@ -11,8 +11,8 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 
-import api from "../services/api";
-import { formatCurrency } from "../lib/utils";
+import api from "../../services/api";
+import { formatCurrency } from "../../lib/utils";
 
 // Define simpler Types here for now
 interface Loan {

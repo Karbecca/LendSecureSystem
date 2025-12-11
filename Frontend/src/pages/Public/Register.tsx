@@ -1,11 +1,12 @@
 import { useState } from "react"
-import { useNavigate, Link } from "react-router-dom"
-import { motion } from "framer-motion"
-import { ShieldCheck, Mail, Lock, User, Loader2, AlertCircle, Check, Phone } from "lucide-react"
-import { useAuth } from "../hooks/useAuth"
-import { Button } from "../components/ui/Button"
-import { Input } from "../components/ui/Input"
-import { cn } from "../lib/utils"
+import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Mail, Lock, User, ArrowRight, Loader2, AlertCircle, CheckCircle, ShieldCheck, Phone, Check } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
+import api from "../../services/api";
+import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
+import { cn } from "../../lib/utils";
 
 export default function Register() {
     const navigate = useNavigate()

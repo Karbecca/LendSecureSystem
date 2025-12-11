@@ -1,12 +1,13 @@
+
 import { useState } from "react"
-import { useNavigate, Link } from "react-router-dom"
-import { motion } from "framer-motion"
-import { ShieldCheck, Mail, Lock, Loader2, AlertCircle } from "lucide-react"
-import { useAuth } from "../hooks/useAuth"
-import { Button } from "../components/ui/Button"
-import { Input } from "../components/ui/Input"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "../components/ui/Card"
-import { cn } from "../lib/utils"
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Mail, Lock, ArrowRight, Loader2, AlertCircle, ShieldCheck } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
+import { Button } from "../../components/ui/Button"
+import { Input } from "../../components/ui/Input"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "../../components/ui/Card"
+import { cn } from "../../lib/utils"
 
 export default function Login() {
     const navigate = useNavigate()
@@ -89,17 +90,17 @@ export default function Login() {
                                 {[1, 2, 3].map(i => (
                                     <div key={i} className="h-6 w-6 rounded-full border-2 border-primary bg-gray-200 flex items-center justify-center overflow-hidden">
                                         <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i + 10}`} alt="User" />
-                                    </div>
+                                    </div >
                                 ))}
-                            </div>
+                            </div >
                             <span className="text-[10px] font-medium opacity-80">Join 5,000+ others</span>
-                        </div>
-                    </div>
-                </div>
+                        </div >
+                    </div >
+                </div >
 
 
                 {/* RIGHT SIDE - FORM */}
-                <div className="flex flex-col justify-center p-8 relative bg-white">
+                < div className="flex flex-col justify-center p-8 relative bg-white" >
 
                     <div className="lg:hidden flex justify-center mb-6">
                         <Link to="/" className="flex items-center space-x-2">
@@ -180,9 +181,9 @@ export default function Login() {
                             </Link>
                         </p>
                     </div>
-                </div>
+                </div >
 
-            </motion.div>
-        </div>
+            </motion.div >
+        </div >
     )
 }
