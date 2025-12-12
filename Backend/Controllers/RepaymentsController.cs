@@ -57,5 +57,17 @@ namespace LendSecureSystem.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpGet("lender-repayments")]
+        [Authorize(Roles = "Lender")]
+        public async Task<IActionResult> GetLenderRepayments()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null) return Unauthorized(new { message = "User ID not found in token." });
+            var userId = Guid.Parse(userIdClaim.Value);
+
+            var result = await _repaymentService.GetLenderRepaymentsAsync(userId);
+            return Ok(result);
+        }
     }
 }

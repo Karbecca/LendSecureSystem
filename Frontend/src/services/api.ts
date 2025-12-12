@@ -50,6 +50,8 @@ const extendedApi = {
     put: api.put,
     delete: api.delete,
     patch: api.patch,
+
+    // Borrower methods
     getWallet: () => api.get('/wallet').then(res => res.data),
     getLoans: () => api.get('/loans').then(res => res.data),
     getMyRepayments: () => api.get('/repayments/my-repayments').then(res => res.data),
@@ -58,6 +60,14 @@ const extendedApi = {
         headers: { 'Content-Type': 'multipart/form-data' }
     }).then(res => res.data),
     makePayment: (data: { repaymentId: string }) => api.post('/repayments/pay', data).then(res => res.data),
+
+    // Lender methods
+    getApprovedLoans: () => api.get('/loans').then(res => res.data),
+    getMyFundings: () => api.get('/funding/my-fundings').then(res => res.data),
+    getLenderRepayments: () => api.get('/repayments/lender-repayments').then(res => res.data),
+    fundLoan: (data: { loanId: string; amount: number }) => api.post('/funding/fund-loan', data).then(res => res.data),
+    getMyAuditLogs: (page = 1, pageSize = 50) => api.get(`/funding/my-audit-logs?page=${page}&pageSize=${pageSize}`).then(res => res.data),
 };
 
 export default extendedApi;
+

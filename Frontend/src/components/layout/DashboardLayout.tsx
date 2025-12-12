@@ -11,7 +11,10 @@ import {
     Menu,
     X,
     Bell,
-    Search
+    Search,
+    PiggyBank,
+    TrendingUp,
+    DollarSign
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { cn } from "../../lib/utils";
@@ -27,7 +30,11 @@ export default function DashboardLayout() {
         navigate("/login");
     };
 
-    const navigation = [
+    // Check if we're on lender routes
+    const isLenderRoute = location.pathname.startsWith('/lender');
+
+    // Borrower navigation
+    const borrowerNavigation = [
         { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
         { name: "My Loans", href: "/loans", icon: FileText },
         { name: "Request Loan", href: "/loans/create", icon: CreditCard },
@@ -36,19 +43,35 @@ export default function DashboardLayout() {
         { name: "Settings", href: "/settings", icon: Settings },
     ];
 
+    // Lender navigation
+    const lenderNavigation = [
+        { name: "Dashboard", href: "/lender", icon: LayoutDashboard },
+        { name: "Browse Loans", href: "/lender/loans", icon: Search },
+        { name: "My Investments", href: "/lender/investments", icon: PiggyBank },
+        { name: "Repayments", href: "/lender/repayments", icon: TrendingUp },
+        { name: "Audit Log", href: "/lender/audit-log", icon: FileText },
+        { name: "KYC Verification", href: "/lender/kyc", icon: ShieldCheck },
+        { name: "Settings", href: "/lender/settings", icon: Settings },
+    ];
+
+    // Choose navigation based on route
+    const navigation = isLenderRoute ? lenderNavigation : borrowerNavigation;
+    const menuLabel = isLenderRoute ? "Lender" : "Menu";
+    const accentColor = isLenderRoute ? "indigo" : "primary";
+
     return (
         <div className="min-h-screen bg-surface-muted flex">
             {/* Sidebar Desktop */}
             <aside className="hidden lg:flex flex-col w-64 bg-slate-900 text-white fixed h-full z-20">
                 <div className="p-6 flex items-center gap-3">
-                    <div className="bg-primary p-2 rounded-lg">
-                        <ShieldCheck className="h-6 w-6 text-white" />
+                    <div className={cn("p-2 rounded-lg", isLenderRoute ? "bg-indigo-600" : "bg-primary")}>
+                        {isLenderRoute ? <DollarSign className="h-6 w-6 text-white" /> : <ShieldCheck className="h-6 w-6 text-white" />}
                     </div>
                     <span className="text-xl font-bold tracking-tight">LendSecure</span>
                 </div>
 
                 <nav className="flex-1 px-4 space-y-2 mt-4">
-                    <p className="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Menu</p>
+                    <p className="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">{menuLabel}</p>
                     {navigation.map((item) => {
                         const isActive = location.pathname === item.href;
                         return (
@@ -58,7 +81,9 @@ export default function DashboardLayout() {
                                 className={cn(
                                     "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium",
                                     isActive
-                                        ? "bg-primary text-white shadow-lg shadow-primary/20"
+                                        ? isLenderRoute
+                                            ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20"
+                                            : "bg-primary text-white shadow-lg shadow-primary/20"
                                         : "text-slate-300 hover:bg-white/10 hover:text-white"
                                 )}
                             >
@@ -79,12 +104,17 @@ export default function DashboardLayout() {
                     </button>
 
                     <div className="mt-4 flex items-center gap-3 px-4 py-2 bg-slate-800 rounded-xl">
-                        <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xs border border-primary/30">
+                        <div className={cn(
+                            "h-8 w-8 rounded-full flex items-center justify-center font-bold text-xs border",
+                            isLenderRoute
+                                ? "bg-indigo-600/20 text-indigo-400 border-indigo-600/30"
+                                : "bg-primary/20 text-primary border-primary/30"
+                        )}>
                             {user?.firstName?.[0] || "U"}{user?.lastName?.[0] || "S"}
                         </div>
                         <div className="flex-1 overflow-hidden">
                             <p className="text-sm font-medium truncate text-white">{user?.firstName} {user?.lastName}</p>
-                            <p className="text-xs text-slate-400 truncate capitalize">{user?.role}</p>
+                            <p className="text-xs text-slate-400 truncate capitalize">{isLenderRoute ? "Lender" : user?.role}</p>
                         </div>
                     </div>
                 </div>
@@ -113,7 +143,7 @@ export default function DashboardLayout() {
                             className={cn(
                                 "flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm font-medium",
                                 location.pathname === item.href
-                                    ? "bg-primary text-white"
+                                    ? isLenderRoute ? "bg-indigo-600 text-white" : "bg-primary text-white"
                                     : "text-slate-300 hover:bg-white/10"
                             )}
                         >
@@ -143,7 +173,7 @@ export default function DashboardLayout() {
                     <div className="flex items-center gap-4">
                         <div className="hidden md:flex items-center bg-surface-muted px-3 py-2 rounded-lg border border-surface-border w-64">
                             <Search className="h-4 w-4 text-slate-400 mr-2" />
-                            <input placeholder="Search loans..." className="bg-transparent border-none outline-none text-sm w-full" />
+                            <input placeholder={isLenderRoute ? "Search investments..." : "Search loans..."} className="bg-transparent border-none outline-none text-sm w-full" />
                         </div>
                         <button className="relative p-2 text-slate-500 hover:bg-surface-muted rounded-full transition-colors">
                             <Bell className="h-5 w-5" />
@@ -159,3 +189,4 @@ export default function DashboardLayout() {
         </div>
     );
 }
+

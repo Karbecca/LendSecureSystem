@@ -13,6 +13,13 @@ import { AuthProvider } from './context/AuthContext'
 
 import { ErrorBoundary } from './components/ErrorBoundary'
 
+// Lender Pages
+import LenderDashboard from './pages/Lender/LenderDashboard'
+import BrowseLoans from './pages/Lender/BrowseLoans'
+import MyInvestments from './pages/Lender/MyInvestments'
+import LenderRepayments from './pages/Lender/LenderRepayments'
+import ViewAuditLog from './pages/Lender/ViewAuditLog'
+
 function App() {
     return (
         <ErrorBoundary>
@@ -23,7 +30,7 @@ function App() {
                         <Route path="/login" element={<Login />} />
                         <Route path="/register" element={<Register />} />
 
-                        {/* Protected Dashboard Routes */}
+                        {/* Protected Dashboard Routes - Borrower */}
                         <Route element={<DashboardLayout />}>
                             <Route path="/dashboard" element={<Dashboard />} />
                             <Route path="/loans" element={<MyLoans />} />
@@ -31,6 +38,17 @@ function App() {
                             <Route path="/repayments" element={<Repayments />} />
                             <Route path="/kyc" element={<KycVerification />} />
                             <Route path="/settings" element={<Settings />} />
+                        </Route>
+
+                        {/* Protected Dashboard Routes - Lender */}
+                        <Route element={<DashboardLayout />}>
+                            <Route path="/lender" element={<LenderDashboard />} />
+                            <Route path="/lender/loans" element={<BrowseLoans />} />
+                            <Route path="/lender/investments" element={<MyInvestments />} />
+                            <Route path="/lender/repayments" element={<LenderRepayments />} />
+                            <Route path="/lender/audit-log" element={<ViewAuditLog />} />
+                            <Route path="/lender/kyc" element={<KycVerification />} />
+                            <Route path="/lender/settings" element={<Settings />} />
                         </Route>
                     </Routes>
                 </AuthProvider>
@@ -40,3 +58,4 @@ function App() {
 }
 
 export default App
+

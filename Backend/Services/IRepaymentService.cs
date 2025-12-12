@@ -11,5 +11,6 @@ namespace LendSecureSystem.Services
         Task<List<RepaymentResponseDto>> GetLoanRepaymentsAsync(Guid loanId);
         Task<List<RepaymentResponseDto>> GetMyRepaymentsAsync(Guid borrowerId);
         Task<RepaymentResponseDto> MakePaymentAsync(Guid borrowerId, Guid repaymentId);
+        Task<List<RepaymentResponseDto>> GetLenderRepaymentsAsync(Guid lenderId);
     }
 }

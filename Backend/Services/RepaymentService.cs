@@ -207,5 +207,55 @@ namespace LendSecureSystem.Services
                 PaidAt = repayment.PaidAt
             };
         }
+
+        public async Task<List<RepaymentResponseDto>> GetLenderRepaymentsAsync(Guid lenderId)
+        {
+            // Get all loan IDs that this lender has funded
+            var fundedLoanIds = await _context.LoanFundings
+                .Where(f => f.LenderId == lenderId)
+                .Select(f => f.LoanId)
+                .Distinct()
+                .ToListAsync();
+
+            // Get repayments for those loans
+            var repayments = await _context.Repayments
+                .Where(r => fundedLoanIds.Contains(r.LoanId))
+                .Include(r => r.Loan)
+                .OrderBy(r => r.ScheduledDate)
+                .ToListAsync();
+
+            // Calculate lender's share of each repayment based on their funding proportion
+            var result = new List<RepaymentResponseDto>();
+            
+            foreach (var repayment in repayments)
+            {
+                // Get total funded for this loan
+                var totalFunded = await _context.LoanFundings
+                    .Where(f => f.LoanId == repayment.LoanId)
+                    .SumAsync(f => f.Amount);
+
+                // Get lender's funding for this loan
+                var lenderFunding = await _context.LoanFundings
+                    .Where(f => f.LoanId == repayment.LoanId && f.LenderId == lenderId)
+                    .SumAsync(f => f.Amount);
+
+                var proportion = totalFunded > 0 ? lenderFunding / totalFunded : 0;
+                var totalRepaymentAmount = repayment.PrincipalAmount + repayment.InterestAmount;
+
+                result.Add(new RepaymentResponseDto
+                {
+                    RepaymentId = repayment.RepaymentId,
+                    LoanId = repayment.LoanId,
+                    ScheduledDate = repayment.ScheduledDate,
+                    PrincipalAmount = repayment.PrincipalAmount * proportion,
+                    InterestAmount = repayment.InterestAmount * proportion,
+                    TotalAmount = totalRepaymentAmount * proportion,
+                    Status = repayment.Status,
+                    PaidAt = repayment.PaidAt
+                });
+            }
+
+            return result;
+        }
     }
 }

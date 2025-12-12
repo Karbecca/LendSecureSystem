@@ -3,6 +3,7 @@ using LendSecureSystem.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -14,10 +15,12 @@ namespace LendSecureSystem.Controllers
     public class FundingController : ControllerBase
     {
         private readonly IFundingService _fundingService;
+        private readonly IAuditService _auditService;
 
-        public FundingController(IFundingService fundingService)
+        public FundingController(IFundingService fundingService, IAuditService auditService)
         {
             _fundingService = fundingService;
+            _auditService = auditService;
         }
 
         [HttpPost("fund-loan")]
@@ -49,6 +52,28 @@ namespace LendSecureSystem.Controllers
 
             var result = await _fundingService.GetMyFundingsAsync(userId);
             return Ok(result);
+        }
+
+        [HttpGet("my-audit-logs")]
+        [Authorize(Roles = "Lender")]
+        public async Task<IActionResult> GetMyAuditLogs([FromQuery] int page = 1, [FromQuery] int pageSize = 50)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null) return Unauthorized(new { message = "User ID not found in token." });
+            var userId = Guid.Parse(userIdClaim.Value);
+
+            var logs = await _auditService.GetUserAuditLogsAsync(userId, page, pageSize);
+
+            var logDtos = logs.Select(log => new
+            {
+                logId = log.LogId,
+                action = log.Action,
+                details = log.Details,
+                ipAddress = log.IpAddress,
+                createdAt = log.CreatedAt
+            }).ToList();
+
+            return Ok(logDtos);
         }
     }
 }
