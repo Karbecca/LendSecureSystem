@@ -67,6 +67,20 @@ const extendedApi = {
     getLenderRepayments: () => api.get('/repayments/lender-repayments').then(res => res.data),
     fundLoan: (data: { loanId: string; amount: number }) => api.post('/funding/fund-loan', data).then(res => res.data),
     getMyAuditLogs: (page = 1, pageSize = 50) => api.get(`/funding/my-audit-logs?page=${page}&pageSize=${pageSize}`).then(res => res.data),
+
+    // Admin Endpoints
+    getAdminDashboardStats: () => api.get('/admin/dashboard').then(res => res.data),
+    getAllUsers: () => api.get('/users').then(res => res.data),
+    updateUserRole: (id: string, role: string) => api.put(`/users/${id}/role`, { role }).then(res => res.data),
+    approveLoan: (id: string) => api.put(`/loans/${id}/approve`).then(res => res.data),
+    rejectLoan: (id: string) => api.put(`/loans/${id}/reject`).then(res => res.data),
+
+    // KYC Management
+    getAllKycDocuments: () => api.get('/kyc/documents').then(res => res.data),
+    approveKycDocument: (id: string) => api.put(`/kyc/${id}/approve`).then(res => res.data),
+    rejectKycDocument: (id: string) => api.put(`/kyc/${id}/reject`).then(res => res.data),
+
+    getAuditLogs: (params?: any) => api.get('/admin/audit-logs', { params }).then(res => res.data),
 };
 
 export default extendedApi;

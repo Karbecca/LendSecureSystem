@@ -2,14 +2,26 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Landing from './pages/Public/Landing'
 import Login from './pages/Public/Login'
 import Register from './pages/Public/Register'
+
+// Borrower/Lender Pages
 import Dashboard from './pages/Borrower/Dashboard'
 import MyLoans from './pages/loans/MyLoans'
 import RequestLoan from './pages/loans/RequestLoan'
 import Repayments from './pages/repayments/Repayments'
 import KycVerification from './pages/kyc/KycVerification'
 import Settings from './pages/settings/Settings'
+
+// Admin Pages
+import AdminDashboard from './pages/Admin/Dashboard'
+import UserManagement from './pages/Admin/Users'
+import LoanManagement from './pages/Admin/Loans'
+import AuditLogs from './pages/Admin/AuditLogs'
+import KycManagement from './pages/Admin/KycManagement'
+
 import DashboardLayout from './components/layout/DashboardLayout'
+import AdminLayout from './components/layout/AdminLayout'
 import { AuthProvider } from './context/AuthContext'
+import { RoleGuard } from './components/auth/RoleGuard'
 
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -30,7 +42,21 @@ function App() {
                         <Route path="/login" element={<Login />} />
                         <Route path="/register" element={<Register />} />
 
-                        {/* Protected Dashboard Routes - Borrower */}
+                        {/* Admin Routes */}
+                        <Route element={
+                            <RoleGuard roles={['Admin']}>
+                                <AdminLayout />
+                            </RoleGuard>
+                        }>
+                            <Route path="/admin" element={<AdminDashboard />} />
+                            <Route path="/admin/users" element={<UserManagement />} />
+                            <Route path="/admin/loans" element={<LoanManagement />} />
+                            <Route path="/admin/audit" element={<AuditLogs />} />
+                            <Route path="/admin/kyc" element={<KycManagement />} />
+                            <Route path="/admin/settings" element={<Settings />} />
+                        </Route>
+
+                        {/* Borrower/Lender Routes */}
                         <Route element={<DashboardLayout />}>
                             <Route path="/dashboard" element={<Dashboard />} />
                             <Route path="/loans" element={<MyLoans />} />

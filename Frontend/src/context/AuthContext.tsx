@@ -1,12 +1,12 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { User, LoginResponse } from "../types/auth";
+import { User } from "../types/auth";
 import { api } from "../services/api";
 import { jwtDecode } from "jwt-decode";
 
 interface AuthContextType {
     user: User | null;
     token: string | null;
-    login: (email: string, password: string) => Promise<void>;
+    login: (email: string, password: string) => Promise<User>;
     logout: () => void;
     register: (email: string, password: string, confirmPassword: string, role: string, firstName: string, lastName: string, phone: string) => Promise<void>;
     isAuthenticated: boolean;
@@ -30,7 +30,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 // simple check if token pattern is valid, precise expiry check happens largely on backend or decode
                 const decoded = jwtDecode(storedToken);
                 // Check expiry if possible
-                const isExpired = decoded.exp ? decoded.exp * 1000 < Date.now() : false;
+                // Cast to any because jwt-decode type might be unknown by default or minimal
+                const exp = (decoded as any).exp;
+                const isExpired = exp ? exp * 1000 < Date.now() : false;
 
                 if (!isExpired) {
                     setToken(storedToken);
@@ -55,6 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setUser(data.user);
             localStorage.setItem("token", data.token);
             localStorage.setItem("user", JSON.stringify(data.user));
+            return data.user;
         } catch (error) {
             throw error;
         }

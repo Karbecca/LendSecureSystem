@@ -1,13 +1,11 @@
 
 import { useState } from "react"
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Mail, Lock, ArrowRight, Loader2, AlertCircle, ShieldCheck } from "lucide-react";
+import { Mail, Lock, Loader2, AlertCircle, ShieldCheck } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { Button } from "../../components/ui/Button"
 import { Input } from "../../components/ui/Input"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "../../components/ui/Card"
-import { cn } from "../../lib/utils"
 
 export default function Login() {
     const navigate = useNavigate()
@@ -31,10 +29,14 @@ export default function Login() {
         setError(null)
 
         try {
-            await login(formData.email, formData.password)
-            navigate("/dashboard") // Redirect on success
+            const user = await login(formData.email, formData.password)
+
+            if (user.role === 'Admin') {
+                navigate("/admin")
+            } else {
+                navigate("/dashboard")
+            }
         } catch (err: any) {
-            // Simple error handling - in a real app, parse the err object
             console.error("Login failed", err);
             setError("Invalid email or password. Please try again.")
         } finally {

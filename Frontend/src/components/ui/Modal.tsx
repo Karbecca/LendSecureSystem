@@ -1,94 +1,72 @@
-import * as React from "react"
-import { X } from "lucide-react"
-import { cn } from "../../lib/utils"
-import { Button } from "./Button"
+import React, { useEffect } from 'react';
+import { X } from 'lucide-react';
 
 interface ModalProps {
-    isOpen: boolean
-    onClose: () => void
-    title?: string
-    description?: string
-    children: React.ReactNode
-    footer?: React.ReactNode
-    size?: "sm" | "md" | "lg" | "xl"
+    isOpen: boolean;
+    onClose: () => void;
+    title: string;
+    children: React.ReactNode;
+    size?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
-export function Modal({
+const Modal: React.FC<ModalProps> = ({
     isOpen,
     onClose,
     title,
-    description,
     children,
-    footer,
-    size = "md",
-}: ModalProps) {
-    if (!isOpen) return null
-
-    // Close on Escape key
-    React.useEffect(() => {
+    size = 'md'
+}) => {
+    useEffect(() => {
         const handleEscape = (e: KeyboardEvent) => {
-            if (e.key === "Escape") onClose()
-        }
-        document.addEventListener("keydown", handleEscape)
-        return () => document.removeEventListener("keydown", handleEscape)
-    }, [onClose])
+            if (e.key === 'Escape') onClose();
+        };
 
-    const sizes = {
-        sm: "max-w-sm",
-        md: "max-w-md",
-        lg: "max-w-lg",
-        xl: "max-w-xl",
-    }
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+            window.addEventListener('keydown', handleEscape);
+        }
+
+        return () => {
+            document.body.style.overflow = 'unset';
+            window.removeEventListener('keydown', handleEscape);
+        };
+    }, [isOpen, onClose]);
+
+    if (!isOpen) return null;
+
+    const sizeClasses = {
+        sm: 'max-w-md',
+        md: 'max-w-lg',
+        lg: 'max-w-2xl',
+        xl: 'max-w-4xl',
+    };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
-            {/* Backdrop */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
             <div
-                className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
-                onClick={onClose}
-            />
-
-            {/* Dialog */}
-            <div
-                className={cn(
-                    "relative w-full transform rounded-xl bg-white p-6 shadow-2xl transition-all animate-in fade-in zoom-in-95 duration-200",
-                    sizes[size]
-                )}
+                className={`bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full ${sizeClasses[size]} transform transition-all animate-in zoom-in-95 duration-200 border border-gray-100 dark:border-gray-700`}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="modal-title"
             >
-                {/* Header */}
-                <div className="flex flex-col space-y-1.5 text-center sm:text-left mb-6">
-                    <div className="flex items-center justify-between">
-                        {title && <h2 className="text-xl font-semibold leading-none tracking-tight text-primary">{title}</h2>}
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="absolute right-4 top-4 h-8 w-8 p-0 rounded-full"
-                            onClick={onClose}
-                        >
-                            <X className="h-4 w-4" />
-                            <span className="sr-only">Close</span>
-                        </Button>
-                    </div>
-
-                    {description && (
-                        <p className="text-sm text-text-secondary">
-                            {description}
-                        </p>
-                    )}
+                <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700">
+                    <h2 id="modal-title" className="text-xl font-semibold text-gray-900 dark:text-white">
+                        {title}
+                    </h2>
+                    <button
+                        onClick={onClose}
+                        className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        aria-label="Close modal"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
                 </div>
-
-                {/* content */}
-                <div className="mb-6">
+                <div className="p-6">
                     {children}
                 </div>
-
-                {/* Footer */}
-                {footer && (
-                    <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
-                        {footer}
-                    </div>
-                )}
             </div>
         </div>
-    )
-}
+    );
+};
+
+export default Modal;
