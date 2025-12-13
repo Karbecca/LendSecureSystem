@@ -12,5 +12,6 @@ namespace LendSecureSystem.Services
         Task<List<LoanResponseDto>> GetLoansAsync(string role, Guid userId); // Role determines what they see
         Task<LoanResponseDto> ApproveLoanAsync(Guid loanId, Guid approverId);
         Task<LoanResponseDto> RejectLoanAsync(Guid loanId, Guid approverId);
+        Task CancelLoanAsync(Guid loanId, Guid borrowerId);
     }
 }

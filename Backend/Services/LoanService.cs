@@ -20,6 +20,16 @@ namespace LendSecureSystem.Services
 
         public async Task<LoanResponseDto> CreateLoanRequestAsync(Guid borrowerId, CreateLoanRequestDto request)
         {
+            // Check for overdue payments
+            var hasOverduePayments = await _context.Repayments
+                .Include(r => r.Loan)
+                .AnyAsync(r => r.Loan.BorrowerId == borrowerId 
+                    && r.Status == "Pending" 
+                    && r.ScheduledDate < DateTime.UtcNow);
+
+            if (hasOverduePayments)
+                throw new Exception("Cannot request new loan. You have overdue payments that must be settled first.");
+
             var loan = new LoanRequest
             {
                 LoanId = Guid.NewGuid(),
@@ -53,8 +63,13 @@ namespace LendSecureSystem.Services
                 .FirstOrDefaultAsync(l => l.LoanId == loanId);
 
             if (loan == null) return null;
+            
+            // Calculate totalFunded for this loan
+            var totalFunded = await _context.LoanFundings
+                .Where(f => f.LoanId == loanId)
+                .SumAsync(f => (decimal?)f.Amount) ?? 0;
 
-            return MapToDto(loan);
+            return MapToDto(loan, totalFunded);
         }
 
         public async Task<List<LoanResponseDto>> GetLoansAsync(string role, Guid userId)
@@ -76,7 +91,16 @@ namespace LendSecureSystem.Services
             // Admin sees all
 
             var loans = await query.OrderByDescending(l => l.CreatedAt).ToListAsync();
-            return loans.Select(MapToDto).ToList();
+            
+            // Calculate totalFunded for each loan
+            var loanIds = loans.Select(l => l.LoanId).ToList();
+            var fundingTotals = await _context.LoanFundings
+                .Where(f => loanIds.Contains(f.LoanId))
+                .GroupBy(f => f.LoanId)
+                .Select(g => new { LoanId = g.Key, TotalFunded = g.Sum(f => f.Amount) })
+                .ToDictionaryAsync(x => x.LoanId, x => x.TotalFunded);
+            
+            return loans.Select(loan => MapToDto(loan, fundingTotals.GetValueOrDefault(loan.LoanId, 0))).ToList();
         }
 
         public async Task<LoanResponseDto> ApproveLoanAsync(Guid loanId, Guid approverId)
@@ -109,7 +133,7 @@ namespace LendSecureSystem.Services
             return await GetLoanByIdAsync(loanId);
         }
 
-        private LoanResponseDto MapToDto(LoanRequest loan)
+        private LoanResponseDto MapToDto(LoanRequest loan, decimal totalFunded = 0)
         {
             var borrowerName = "Unknown";
             if (loan.Borrower?.Profile != null)
@@ -133,8 +157,60 @@ namespace LendSecureSystem.Services
                 InterestRate = loan.InterestRate,
                 Status = loan.Status,
                 CreatedAt = loan.CreatedAt,
-                ApprovedAt = loan.ApprovedAt
+                ApprovedAt = loan.ApprovedAt,
+                TotalFunded = totalFunded
             };
+        }
+
+        public async Task CancelLoanAsync(Guid loanId, Guid borrowerId)
+        {
+            var loan = await _context.LoanRequests.FindAsync(loanId);
+            
+            if (loan == null)
+                throw new Exception("Loan not found.");
+
+            if (loan.BorrowerId != borrowerId)
+                throw new Exception("Unauthorized: You can only cancel your own loans.");
+
+            if (loan.Status != "Pending" && loan.Status != "Approved")
+                throw new Exception("Only pending or approved loans can be cancelled.");
+
+            // Get all fundings for this loan
+            var fundings = await _context.LoanFundings
+                .Where(f => f.LoanId == loanId)
+                .ToListAsync();
+
+            // Refund all lenders
+            foreach (var funding in fundings)
+            {
+                var lenderWallet = await _context.Wallets
+                    .FirstOrDefaultAsync(w => w.UserId == funding.LenderId);
+
+                if (lenderWallet != null)
+                {
+                    // Refund the amount
+                    lenderWallet.Balance += funding.Amount;
+                    lenderWallet.UpdatedAt = DateTime.UtcNow;
+
+                    // Create refund transaction
+                    var refundTransaction = new WalletTransaction
+                    {
+                        TxnId = Guid.NewGuid(),
+                        WalletId = lenderWallet.WalletId,
+                        TxnType = "Credit - Loan Cancelled Refund",
+                        Amount = funding.Amount,
+                        Currency = lenderWallet.Currency,
+                        RelatedLoanId = loanId,
+                        CreatedAt = DateTime.UtcNow
+                    };
+
+                    _context.WalletTransactions.Add(refundTransaction);
+                }
+            }
+
+            // Update loan status
+            loan.Status = "Cancelled";
+            await _context.SaveChangesAsync();
         }
     }
 }

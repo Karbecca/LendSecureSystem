@@ -146,5 +146,23 @@ namespace LendSecureSystem.Services
 
             return await GetUserProfileAsync(userId);
         }
+
+        public async Task ChangePasswordAsync(Guid userId, string currentPassword, string newPassword)
+        {
+            var user = await _context.Users.FindAsync(userId);
+
+            if (user == null)
+                throw new Exception("User not found.");
+
+            // Verify current password
+            if (!BCrypt.Net.BCrypt.Verify(currentPassword, user.PasswordHash))
+                throw new Exception("Current password is incorrect.");
+
+            // Hash new password
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+        }
     }
 }

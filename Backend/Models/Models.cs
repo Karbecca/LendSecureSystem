@@ -245,8 +245,12 @@ namespace LendSecureSystem.Models
         [Column("status")]
         public string Status { get; set; } = "Pending";
 
+
         [Column("paid_at")]
         public DateTime? PaidAt { get; set; }
+
+        [Column("late_fee", TypeName = "decimal(12,2)")]
+        public decimal LateFee { get; set; } = 0;
 
         // Navigation Property
         [ForeignKey("LoanId")]
