@@ -106,25 +106,27 @@ export default function Landing() {
                             </motion.div >
 
                             {/* Hero Visual / Image - WITH TILT */}
-                            < motion.div
+                            <motion.div
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.8, delay: 0.2 }}
                                 className="relative hidden lg:block"
                             >
                                 <Tilt tiltMaxAngleX={10} tiltMaxAngleY={10} scale={1.05} transitionSpeed={2500}>
-                                    <div className="relative z-10 bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-surface-border p-6 transform transition-all duration-500">
-                                        <div className="absolute top-4 right-4 bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full">
+                                    <div className="relative z-10 bg-white rounded-3xl shadow-2xl border border-slate-200 p-6 transform transition-all duration-500">
+                                        <div className="absolute top-4 right-4 bg-green-100 text-green-700 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">
                                             + 12.5% Yield
                                         </div>
-                                        <div className="h-64 bg-slate-50 rounded-xl mb-4 flex items-center justify-center overflow-hidden relative">
-                                            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5"></div>
+                                        <div className="h-64 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 rounded-xl mb-4 flex items-center justify-center overflow-hidden relative">
+                                            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10"></div>
                                             <img
-                                                src="https://images.unsplash.com/photo-1565514020176-db79339e6a2b?auto=format&fit=crop&q=80&w=800"
+                                                src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800"
                                                 alt="Financial Growth"
-                                                className="object-cover w-full h-full mix-blend-overlay opacity-60"
+                                                className="object-cover w-full h-full opacity-30"
                                             />
-                                            <TrendingUp className="h-16 w-16 text-primary absolute drop-shadow-lg" />
+                                            <div className="absolute inset-0 flex items-center justify-center">
+                                                <TrendingUp className="h-20 w-20 text-primary drop-shadow-lg" />
+                                            </div>
                                         </div>
                                         <div className="space-y-3">
                                             <div className="h-4 bg-slate-100 rounded w-3/4 animate-pulse"></div>
@@ -139,7 +141,7 @@ export default function Landing() {
                                         </div>
                                     </div>
                                 </Tilt>
-                            </motion.div >
+                            </motion.div>
                         </div >
                     </div >
                 </section >
