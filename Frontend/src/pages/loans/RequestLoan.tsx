@@ -13,11 +13,18 @@ import {
 } from "lucide-react";
 import api from "../../services/api";
 import { formatCurrency, cn } from "../../lib/utils";
+import { VALIDATION, validateLoanAmount, validateLoanTerm, validateInterestRate, validatePurpose, getErrorMessage } from "../../lib/validation";
 
 export default function RequestLoan() {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [validationErrors, setValidationErrors] = useState<{
+        amount?: string;
+        term?: string;
+        interest?: string;
+        purpose?: string;
+    }>({});
 
     // Form State
     const [amount, setAmount] = useState<number>(50000); // Default 50k
@@ -54,14 +61,28 @@ export default function RequestLoan() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsLoading(true);
         setError(null);
+        setValidationErrors({});
 
-        if (!purpose.trim()) {
-            setError("Please provide a purpose for the loan.");
-            setIsLoading(false);
+        // Validate all fields
+        const errors: any = {};
+        const amountError = validateLoanAmount(amount);
+        const termError = validateLoanTerm(duration);
+        const interestError = validateInterestRate(interestRate);
+        const purposeError = validatePurpose(purpose);
+
+        if (amountError) errors.amount = amountError;
+        if (termError) errors.term = termError;
+        if (interestError) errors.interest = interestError;
+        if (purposeError) errors.purpose = purposeError;
+
+        if (Object.keys(errors).length > 0) {
+            setValidationErrors(errors);
+            setError("Please fix the errors below before submitting.");
             return;
         }
+
+        setIsLoading(true);
 
         try {
             await api.post("/loans", {
@@ -75,7 +96,7 @@ export default function RequestLoan() {
             navigate("/loans");
         } catch (err: any) {
             console.error("Loan Request Failed", err);
-            setError(err.response?.data?.message || "Failed to submit loan request. Please try again.");
+            setError(getErrorMessage(err));
         } finally {
             setIsLoading(false);
         }
@@ -118,18 +139,27 @@ export default function RequestLoan() {
                                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">RWF</span>
                                 <input
                                     type="number"
-                                    min="1000"
-                                    max="1000000"
+                                    min={VALIDATION.LOAN.AMOUNT.MIN}
+                                    max={VALIDATION.LOAN.AMOUNT.MAX}
                                     step="1000"
                                     value={amount}
                                     onChange={(e) => setAmount(Number(e.target.value))}
-                                    className="w-full pl-14 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-bold text-slate-700 placeholder:text-slate-300"
+                                    className={cn(
+                                        "w-full pl-14 pr-4 py-3 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 transition-all font-bold text-slate-700",
+                                        validationErrors.amount
+                                            ? "border-red-300 focus:ring-red-500/20 focus:border-red-500"
+                                            : "border-slate-200 focus:ring-primary/20 focus:border-primary"
+                                    )}
                                 />
                             </div>
-                            <div className="flex justify-between text-xs text-slate-400 font-medium">
-                                <span>Min: {formatCurrency(1000)}</span>
-                                <span>Max: {formatCurrency(1000000)}</span>
-                            </div>
+                            {validationErrors.amount ? (
+                                <p className="text-red-500 text-sm">{validationErrors.amount}</p>
+                            ) : (
+                                <div className="flex justify-between text-xs text-slate-400 font-medium">
+                                    <span>Min: {formatCurrency(VALIDATION.LOAN.AMOUNT.MIN)}</span>
+                                    <span>Max: {formatCurrency(VALIDATION.LOAN.AMOUNT.MAX)}</span>
+                                </div>
+                            )}
                         </div>
 
                         {/* Duration Input */}
@@ -139,15 +169,24 @@ export default function RequestLoan() {
                                 <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                                 <input
                                     type="number"
-                                    min="1"
-                                    max="60"
+                                    min={VALIDATION.LOAN.TERM.MIN}
+                                    max={VALIDATION.LOAN.TERM.MAX}
                                     step="1"
                                     value={duration}
                                     onChange={(e) => setDuration(Number(e.target.value))}
-                                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-bold text-slate-700"
+                                    className={cn(
+                                        "w-full pl-12 pr-4 py-3 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 transition-all font-bold text-slate-700",
+                                        validationErrors.term
+                                            ? "border-red-300 focus:ring-red-500/20 focus:border-red-500"
+                                            : "border-slate-200 focus:ring-primary/20 focus:border-primary"
+                                    )}
                                 />
                             </div>
-                            <div className="text-xs text-slate-400 font-medium">1 - 60 Months</div>
+                            {validationErrors.term ? (
+                                <p className="text-red-500 text-sm">{validationErrors.term}</p>
+                            ) : (
+                                <div className="text-xs text-slate-400 font-medium">{VALIDATION.LOAN.TERM.LABEL}</div>
+                            )}
                         </div>
 
                         {/* Interest Rate Input */}
@@ -157,32 +196,51 @@ export default function RequestLoan() {
                                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">%</span>
                                 <input
                                     type="number"
-                                    min="0"
-                                    max="50"
+                                    min={VALIDATION.LOAN.INTEREST.MIN}
+                                    max={VALIDATION.LOAN.INTEREST.MAX}
                                     step="0.5"
                                     value={interestRate}
                                     onChange={(e) => setInterestRate(Number(e.target.value))}
-                                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-bold text-slate-700"
+                                    className={cn(
+                                        "w-full pl-10 pr-4 py-3 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 transition-all font-bold text-slate-700",
+                                        validationErrors.interest
+                                            ? "border-red-300 focus:ring-red-500/20 focus:border-red-500"
+                                            : "border-slate-200 focus:ring-primary/20 focus:border-primary"
+                                    )}
                                 />
                             </div>
-                            <p className="text-xs text-slate-400">Typical range: 3% - 10%</p>
+                            {validationErrors.interest ? (
+                                <p className="text-red-500 text-sm">{validationErrors.interest}</p>
+                            ) : (
+                                <p className="text-xs text-slate-400">{VALIDATION.LOAN.INTEREST.LABEL}</p>
+                            )}
                         </div>
 
                         {/* Purpose Input */}
                         <div className="space-y-2">
                             <label className="text-sm font-bold text-slate-700 uppercase tracking-wide">Loan Purpose</label>
                             <div className="relative">
-                                <Info className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                                <input
-                                    type="text"
+                                <Info className="absolute left-4 top-4 h-5 w-5 text-slate-400" />
+                                <textarea
                                     placeholder="E.g., Business expansion, Home renovation..."
-                                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
+                                    className={cn(
+                                        "w-full pl-12 pr-4 py-3 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 transition-all font-medium min-h-[100px]",
+                                        validationErrors.purpose
+                                            ? "border-red-300 focus:ring-red-500/20 focus:border-red-500"
+                                            : "border-slate-200 focus:ring-primary/20 focus:border-primary"
+                                    )}
                                     value={purpose}
                                     onChange={(e) => setPurpose(e.target.value)}
-                                    required
-                                    autoFocus // Helps with typing immediately
+                                    maxLength={VALIDATION.LOAN.PURPOSE.MAX_LENGTH}
                                 />
                             </div>
+                            {validationErrors.purpose ? (
+                                <p className="text-red-500 text-sm">{validationErrors.purpose}</p>
+                            ) : (
+                                <p className="text-xs text-slate-400">
+                                    {purpose.length}/{VALIDATION.LOAN.PURPOSE.MAX_LENGTH} characters (min {VALIDATION.LOAN.PURPOSE.MIN_LENGTH})
+                                </p>
+                            )}
                         </div>
 
                         <button

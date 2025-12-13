@@ -26,6 +26,7 @@ interface Loan {
     interestRate: number;
     status: string;
     createdAt: string;
+    totalFunded?: number; // For showing remaining amount
 }
 
 export default function BrowseLoans() {
@@ -80,8 +81,9 @@ export default function BrowseLoans() {
             return;
         }
 
-        if (amount > selectedLoan.amountRequested) {
-            setError(`Maximum amount is ${formatCurrency(selectedLoan.amountRequested)}`);
+        const remaining = selectedLoan.amountRequested - (selectedLoan.totalFunded || 0);
+        if (amount > remaining) {
+            setError(`Maximum amount is ${formatCurrency(remaining)}. Remaining to fund: ${formatCurrency(remaining)}`);
             return;
         }
 
@@ -270,13 +272,13 @@ export default function BrowseLoans() {
                                             Funding Amount
                                         </label>
                                         <div className="relative">
-                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">RWF</span>
                                             <input
                                                 type="number"
                                                 value={fundingAmount}
                                                 onChange={(e) => setFundingAmount(e.target.value)}
                                                 placeholder="0.00"
-                                                className="w-full pl-8 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                                                className="w-full pl-14 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
                                             />
                                         </div>
                                         <p className="text-slate-400 text-xs mt-2">Maximum: {formatCurrency(selectedLoan.amountRequested)}</p>
