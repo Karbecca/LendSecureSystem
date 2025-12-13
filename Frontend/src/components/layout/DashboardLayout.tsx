@@ -36,9 +36,10 @@ export default function DashboardLayout() {
     // Borrower navigation
     const borrowerNavigation = [
         { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+        { name: "Wallet", href: "/wallet", icon: Wallet },
         { name: "My Loans", href: "/loans", icon: FileText },
         { name: "Request Loan", href: "/loans/create", icon: CreditCard },
-        { name: "Repayments", href: "/repayments", icon: Wallet },
+        { name: "Repayments", href: "/repayments", icon: DollarSign },
         { name: "KYC Verification", href: "/kyc", icon: ShieldCheck },
         { name: "Settings", href: "/settings", icon: Settings },
     ];
@@ -46,6 +47,7 @@ export default function DashboardLayout() {
     // Lender navigation
     const lenderNavigation = [
         { name: "Dashboard", href: "/lender", icon: LayoutDashboard },
+        { name: "Wallet", href: "/lender/wallet", icon: Wallet },
         { name: "Browse Loans", href: "/lender/loans", icon: Search },
         { name: "My Investments", href: "/lender/investments", icon: PiggyBank },
         { name: "Repayments", href: "/lender/repayments", icon: TrendingUp },

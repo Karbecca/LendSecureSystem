@@ -10,6 +10,8 @@ import RequestLoan from './pages/loans/RequestLoan'
 import Repayments from './pages/repayments/Repayments'
 import KycVerification from './pages/kyc/KycVerification'
 import Settings from './pages/settings/Settings'
+import Wallet from './pages/Wallet'
+import RepaymentSchedule from './pages/RepaymentSchedule'
 
 // Admin Pages
 import AdminDashboard from './pages/Admin/Dashboard'
@@ -44,7 +46,7 @@ function App() {
 
                         {/* Admin Routes */}
                         <Route element={
-                            <RoleGuard roles={['Admin']}>
+                            <RoleGuard allowedRoles={['Admin']}>
                                 <AdminLayout />
                             </RoleGuard>
                         }>
@@ -59,9 +61,11 @@ function App() {
                         {/* Borrower/Lender Routes */}
                         <Route element={<DashboardLayout />}>
                             <Route path="/dashboard" element={<Dashboard />} />
+                            <Route path="/wallet" element={<Wallet />} />
                             <Route path="/loans" element={<MyLoans />} />
                             <Route path="/loans/create" element={<RequestLoan />} />
                             <Route path="/repayments" element={<Repayments />} />
+                            <Route path="/repayments/schedule/:loanId" element={<RepaymentSchedule />} />
                             <Route path="/kyc" element={<KycVerification />} />
                             <Route path="/settings" element={<Settings />} />
                         </Route>
@@ -69,6 +73,7 @@ function App() {
                         {/* Protected Dashboard Routes - Lender */}
                         <Route element={<DashboardLayout />}>
                             <Route path="/lender" element={<LenderDashboard />} />
+                            <Route path="/lender/wallet" element={<Wallet />} />
                             <Route path="/lender/loans" element={<BrowseLoans />} />
                             <Route path="/lender/investments" element={<MyInvestments />} />
                             <Route path="/lender/repayments" element={<LenderRepayments />} />
