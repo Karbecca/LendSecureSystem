@@ -53,6 +53,8 @@ namespace LendSecureSystem.Services
         public async Task<List<KycDocumentResponseDto>> GetAllDocumentsAsync()
         {
             var docs = await _context.KYCDocuments
+                .Include(d => d.User)  // Include user information
+                    .ThenInclude(u => u.Profile)  // Include user profile
                 .OrderByDescending(d => d.Status == "Pending") // Pending first
                 .ToListAsync();
 
@@ -91,10 +93,18 @@ namespace LendSecureSystem.Services
             return new KycDocumentResponseDto
             {
                 DocId = doc.DocId,
+                UserId = doc.UserId,
                 DocType = doc.DocType,
                 FilePath = doc.FilePath,
                 Status = doc.Status,
-                UploadedAt = null // Model doesn't have CreatedAt for docs yet
+                ReviewerId = doc.ReviewerId,
+                ReviewedAt = doc.ReviewedAt,
+                User = doc.User?.Profile != null ? new UserInfoDto
+                {
+                    FirstName = doc.User.Profile.FirstName,
+                    LastName = doc.User.Profile.LastName,
+                    Email = doc.User.Email
+                } : null
             };
         }
     }

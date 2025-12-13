@@ -9,5 +9,6 @@ namespace LendSecureSystem.Services
         Task<List<UserListDto>> GetAllUsersAsync();
         Task<UserProfileDto> GetUserByIdAsync(Guid userId);
         Task<UserProfileDto> UpdateUserRoleAsync(Guid userId, string newRole, Guid adminId, string ipAddress, string userAgent);
+        Task ChangePasswordAsync(Guid userId, string currentPassword, string newPassword);
     }
 }

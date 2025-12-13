@@ -9,21 +9,18 @@ import {
 } from "lucide-react";
 import api from "../../services/api";
 import { cn } from "../../lib/utils";
-import Modal from "../../components/ui/Modal";
+import { Modal } from "../../components/ui/Modal";
 import ConfirmationDialog from "../../components/ui/ConfirmationDialog";
 import { Button } from "../../components/ui/Button";
 
 interface KycDocument {
-    documentId: string;
+    docId: string;  // Backend uses DocId
     userId: string;
-    documentType: string;
-    documentNumber: string;
+    docType: string;  // Backend uses DocType
     filePath: string;
     status: "Pending" | "Approved" | "Rejected";
-    uploadedAt: string;
-    reviewedBy?: string;
+    reviewerId?: string;
     reviewedAt?: string;
-    rejectionReason?: string;
     user?: {
         firstName: string;
         lastName: string;
@@ -71,14 +68,14 @@ export default function KycManagement() {
         try {
             setIsProcessing(true);
             if (actionType === "approve") {
-                await api.approveKycDocument(selectedDoc.documentId);
+                await api.approveKycDocument(selectedDoc.docId);
                 setDocuments(docs => docs.map(d =>
-                    d.documentId === selectedDoc.documentId ? { ...d, status: "Approved" } : d
+                    d.docId === selectedDoc.docId ? { ...d, status: "Approved" } : d
                 ));
             } else {
-                await api.rejectKycDocument(selectedDoc.documentId);
+                await api.rejectKycDocument(selectedDoc.docId);
                 setDocuments(docs => docs.map(d =>
-                    d.documentId === selectedDoc.documentId ? { ...d, status: "Rejected" } : d
+                    d.docId === selectedDoc.docId ? { ...d, status: "Rejected" } : d
                 ));
             }
             setIsConfirmOpen(false);
@@ -154,28 +151,26 @@ export default function KycManagement() {
                             <tr>
                                 <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">User</th>
                                 <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Document Type</th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">ID Number</th>
                                 <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Uploaded At</th>
                                 <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-200">
                             {isLoading ? (
                                 <tr>
-                                    <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
+                                    <td colSpan={4} className="px-6 py-12 text-center text-slate-500">
                                         Loading documents...
                                     </td>
                                 </tr>
                             ) : filteredDocs.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
+                                    <td colSpan={4} className="px-6 py-12 text-center text-slate-500">
                                         No documents found matching your criteria.
                                     </td>
                                 </tr>
                             ) : (
                                 filteredDocs.map((doc) => (
-                                    <tr key={doc.documentId} className="hover:bg-slate-50 transition-colors">
+                                    <tr key={doc.docId} className="hover:bg-slate-50 transition-colors">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
@@ -190,10 +185,7 @@ export default function KycManagement() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 text-sm text-slate-600">
-                                            {doc.documentType}
-                                        </td>
-                                        <td className="px-6 py-4 font-mono text-xs text-slate-600">
-                                            {doc.documentNumber}
+                                            {doc.docType}
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={cn(
@@ -202,9 +194,6 @@ export default function KycManagement() {
                                             )}>
                                                 {doc.status}
                                             </span>
-                                        </td>
-                                        <td className="px-6 py-4 text-sm text-slate-500">
-                                            {new Date(doc.uploadedAt).toLocaleDateString()}
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center justify-end gap-2">
@@ -283,20 +272,13 @@ export default function KycManagement() {
                             </span>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4">
                             <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">
                                 <div className="flex items-center gap-2 mb-1 text-slate-500">
                                     <Shield className="h-4 w-4" />
                                     <span className="text-xs font-semibold uppercase">Type</span>
                                 </div>
-                                <p className="font-medium text-slate-900">{selectedDoc.documentType}</p>
-                            </div>
-                            <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">
-                                <div className="flex items-center gap-2 mb-1 text-slate-500">
-                                    <FileText className="h-4 w-4" />
-                                    <span className="text-xs font-semibold uppercase">Number</span>
-                                </div>
-                                <p className="font-medium text-slate-900 font-mono">{selectedDoc.documentNumber}</p>
+                                <p className="font-medium text-slate-900">{selectedDoc.docType}</p>
                             </div>
                         </div>
 

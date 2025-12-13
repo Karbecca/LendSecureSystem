@@ -53,7 +53,15 @@ export default function Register() {
             // For now, I'll assume basic Auth logic and maybe update valid data later.
 
             await register(formData.email, formData.password, formData.confirmPassword, formData.role, formData.firstName, formData.lastName, formData.phone)
-            navigate("/dashboard")
+
+            // Route based on role
+            if (formData.role === 'Admin') {
+                navigate("/admin")
+            } else if (formData.role === 'Lender') {
+                navigate("/lender")
+            } else {
+                navigate("/dashboard")
+            }
         } catch (err: any) {
             console.error("Registration failed", err);
             // Try to extract the most specific error message possible

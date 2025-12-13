@@ -1,273 +1,320 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
     User,
+    Mail,
+    Phone,
     Lock,
-    Bell,
-    Shield,
     Save,
     Loader2,
-    Mail,
-    Smartphone,
-    LogOut
+    CheckCircle2,
+    AlertCircle
 } from "lucide-react";
-import { useAuth } from "../../hooks/useAuth";
+import api from "../../services/api";
 import { cn } from "../../lib/utils";
+import { Button } from "../../components/ui/Button";
 
 export default function Settings() {
-    const { user, logout } = useAuth();
+    const [activeTab, setActiveTab] = useState<"profile" | "password">("profile");
     const [isLoading, setIsLoading] = useState(false);
-    const [activeTab, setActiveTab] = useState("profile");
+    const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-    // Form States
-    const [firstName, setFirstName] = useState(user?.firstName || "");
-    const [lastName, setLastName] = useState(user?.lastName || "");
-    const [phone, setPhone] = useState(user?.phone || "");
-
-    // Notification preferences (Mock)
-    const [notifications, setNotifications] = useState({
-        emailLoanUpdates: true,
-        emailPromos: false,
-        smsSecurity: true
+    // Profile state
+    const [profile, setProfile] = useState({
+        fullName: "",
+        email: "",
+        phoneNumber: ""
     });
 
-    const handleSaveProfile = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
-        // Simulate API call
-        setTimeout(() => {
-            setIsLoading(false);
-            // In a real app, calls api.updateProfile({ firstName, lastName, phone })
-            alert("Profile updated successfully!");
-        }, 1000);
-    };
+    // Password state
+    const [passwords, setPasswords] = useState({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: ""
+    });
 
-    const container = {
-        hidden: { opacity: 0 },
-        show: {
-            opacity: 1,
-            transition: { staggerChildren: 0.1 }
+    useEffect(() => {
+        fetchProfile();
+    }, []);
+
+    const fetchProfile = async () => {
+        try {
+            const response = await api.get("/users/profile");
+            const data = response.data?.data || response.data;
+            setProfile({
+                fullName: data.fullName || "",
+                email: data.email || "",
+                phoneNumber: data.phoneNumber || ""
+            });
+        } catch (error) {
+            console.error("Failed to fetch profile", error);
         }
     };
 
-    const item = {
-        hidden: { opacity: 0, y: 20 },
-        show: { opacity: 1, y: 0 }
+    const handleProfileUpdate = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setMessage(null);
+
+        try {
+            await api.put("/users/profile", profile);
+            setMessage({ type: "success", text: "Profile updated successfully!" });
+        } catch (error: any) {
+            setMessage({ type: "error", text: error.response?.data?.message || "Failed to update profile" });
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    const tabs = [
-        { id: "profile", label: "Profile", icon: User },
-        { id: "security", label: "Security", icon: Shield },
-        { id: "notifications", label: "Notifications", icon: Bell },
-    ];
+    const handlePasswordChange = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setMessage(null);
+
+        if (passwords.newPassword !== passwords.confirmPassword) {
+            setMessage({ type: "error", text: "New passwords do not match" });
+            setIsLoading(false);
+            return;
+        }
+
+        if (passwords.newPassword.length < 6) {
+            setMessage({ type: "error", text: "Password must be at least 6 characters" });
+            setIsLoading(false);
+            return;
+        }
+
+        try {
+            await api.put("/users/password", {
+                currentPassword: passwords.currentPassword,
+                newPassword: passwords.newPassword,
+                confirmPassword: passwords.confirmPassword
+            });
+            setMessage({ type: "success", text: "Password changed successfully!" });
+            setPasswords({ currentPassword: "", newPassword: "", confirmPassword: "" });
+        } catch (error: any) {
+            setMessage({ type: "error", text: error.response?.data?.message || "Failed to change password" });
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
-        <motion.div
-            variants={container}
-            initial="show"
-            animate="show"
-            className="space-y-8 max-w-5xl mx-auto"
-        >
+        <div className="max-w-4xl mx-auto space-y-6">
+            {/* Header */}
             <div>
                 <h1 className="text-2xl font-bold text-slate-800">Settings</h1>
-                <p className="text-slate-500 text-sm mt-1">Manage your account preferences and security.</p>
+                <p className="text-slate-500 text-sm mt-1">Manage your account settings and preferences</p>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-8">
-                {/* Sidebar Navigation */}
-                <motion.div variants={item} className="w-full md:w-64 flex-shrink-0">
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                        <nav className="p-2 space-y-1">
-                            {tabs.map(tab => (
-                                <button
-                                    key={tab.id}
-                                    onClick={() => setActiveTab(tab.id)}
-                                    className={cn(
-                                        "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-left",
-                                        activeTab === tab.id
-                                            ? "bg-primary/10 text-primary"
-                                            : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
-                                    )}
-                                >
-                                    <tab.icon className="h-4 w-4" />
-                                    {tab.label}
-                                </button>
-                            ))}
-                        </nav>
-                        <div className="p-2 border-t border-slate-100 mt-2">
-                            <button
-                                onClick={logout}
-                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition-all text-left"
-                            >
-                                <LogOut className="h-4 w-4" />
-                                Logout
-                            </button>
-                        </div>
-                    </div>
-                </motion.div>
-
-                {/* Main Content Area */}
-                <motion.div variants={item} className="flex-1">
-                    {activeTab === "profile" && (
-                        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
-                            <div className="flex items-center gap-4 mb-8">
-                                <div className="h-20 w-20 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-2xl font-bold border-4 border-white shadow-lg">
-                                    {user?.firstName?.[0]}{user?.lastName?.[0]}
-                                </div>
-                                <div>
-                                    <h2 className="text-xl font-bold text-slate-800">{user?.firstName} {user?.lastName}</h2>
-                                    <p className="text-slate-500 text-sm">{user?.email}</p>
-                                    <span className="inline-block mt-2 px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-wider border border-slate-200">
-                                        {user?.role}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <form onSubmit={handleSaveProfile} className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-bold text-slate-700">First Name</label>
-                                        <input
-                                            type="text"
-                                            value={firstName}
-                                            onChange={(e) => setFirstName(e.target.value)}
-                                            className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-bold text-slate-700">Last Name</label>
-                                        <input
-                                            type="text"
-                                            value={lastName}
-                                            onChange={(e) => setLastName(e.target.value)}
-                                            className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-bold text-slate-700">Email Address</label>
-                                        <div className="relative">
-                                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                            <input
-                                                type="email"
-                                                value={user?.email}
-                                                disabled
-                                                className="w-full pl-10 pr-3 py-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-500 font-medium cursor-not-allowed"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-bold text-slate-700">Phone Number</label>
-                                        <div className="relative">
-                                            <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                            <input
-                                                type="tel"
-                                                value={phone}
-                                                onChange={(e) => setPhone(e.target.value)}
-                                                className="w-full pl-10 pr-3 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="pt-4 flex justify-end">
-                                    <button
-                                        type="submit"
-                                        disabled={isLoading}
-                                        className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-primary/25 transition-all flex items-center gap-2"
-                                    >
-                                        {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                                        Save Changes
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
+            {/* Tabs */}
+            <div className="flex gap-2 border-b border-slate-200">
+                <button
+                    onClick={() => setActiveTab("profile")}
+                    className={cn(
+                        "px-4 py-3 font-medium text-sm transition-colors border-b-2",
+                        activeTab === "profile"
+                            ? "text-indigo-600 border-indigo-600"
+                            : "text-slate-600 border-transparent hover:text-slate-800"
                     )}
-
-                    {activeTab === "security" && (
-                        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
-                            <h3 className="font-bold text-lg text-slate-800 mb-6">Change Password</h3>
-                            <form className="space-y-6 max-w-lg">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-slate-700">Current Password</label>
-                                    <div className="relative">
-                                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                        <input
-                                            type="password"
-                                            className="w-full pl-10 pr-3 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                                        />
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-slate-700">New Password</label>
-                                    <div className="relative">
-                                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                        <input
-                                            type="password"
-                                            className="w-full pl-10 pr-3 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                                        />
-                                    </div>
-                                </div>
-                                <button className="bg-slate-900 text-white px-6 py-3 rounded-xl font-bold hover:bg-slate-800 transition-colors">
-                                    Update Password
-                                </button>
-                            </form>
-                        </div>
+                >
+                    Profile Information
+                </button>
+                <button
+                    onClick={() => setActiveTab("password")}
+                    className={cn(
+                        "px-4 py-3 font-medium text-sm transition-colors border-b-2",
+                        activeTab === "password"
+                            ? "text-indigo-600 border-indigo-600"
+                            : "text-slate-600 border-transparent hover:text-slate-800"
                     )}
-
-                    {activeTab === "notifications" && (
-                        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
-                            <h3 className="font-bold text-lg text-slate-800 mb-6">Notification Preferences</h3>
-                            <div className="space-y-6">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <h4 className="font-bold text-slate-800 text-sm">Loan Updates</h4>
-                                        <p className="text-xs text-slate-500">Receive emails about your loan status.</p>
-                                    </div>
-                                    <label className="relative inline-flex items-center cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            className="sr-only peer"
-                                            checked={notifications.emailLoanUpdates}
-                                            onChange={() => setNotifications(prev => ({ ...prev, emailLoanUpdates: !prev.emailLoanUpdates }))}
-                                        />
-                                        <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                                    </label>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <h4 className="font-bold text-slate-800 text-sm">Promotional Emails</h4>
-                                        <p className="text-xs text-slate-500">Receive news about new features and offers.</p>
-                                    </div>
-                                    <label className="relative inline-flex items-center cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            className="sr-only peer"
-                                            checked={notifications.emailPromos}
-                                            onChange={() => setNotifications(prev => ({ ...prev, emailPromos: !prev.emailPromos }))}
-                                        />
-                                        <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                                    </label>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <h4 className="font-bold text-slate-800 text-sm">Security Alerts (SMS)</h4>
-                                        <p className="text-xs text-slate-500">Get text messages for important security actions.</p>
-                                    </div>
-                                    <label className="relative inline-flex items-center cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            className="sr-only peer"
-                                            checked={notifications.smsSecurity}
-                                            onChange={() => setNotifications(prev => ({ ...prev, smsSecurity: !prev.smsSecurity }))}
-                                        />
-                                        <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </motion.div>
+                >
+                    Change Password
+                </button>
             </div>
-        </motion.div>
+
+            {/* Message */}
+            {message && (
+                <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={cn(
+                        "p-4 rounded-xl flex items-center gap-3",
+                        message.type === "success" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"
+                    )}
+                >
+                    {message.type === "success" ? (
+                        <CheckCircle2 className="h-5 w-5" />
+                    ) : (
+                        <AlertCircle className="h-5 w-5" />
+                    )}
+                    <p className="font-medium">{message.text}</p>
+                </motion.div>
+            )}
+
+            {/* Profile Tab */}
+            {activeTab === "profile" && (
+                <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="bg-white rounded-2xl p-8 shadow-sm border border-slate-100"
+                >
+                    <h2 className="text-lg font-bold text-slate-800 mb-6">Update Profile Information</h2>
+                    <form onSubmit={handleProfileUpdate} className="space-y-6">
+                        {/* Full Name */}
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                                Full Name
+                            </label>
+                            <div className="relative">
+                                <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                                <input
+                                    type="text"
+                                    value={profile.fullName}
+                                    onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
+                                    className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        {/* Email */}
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                                Email Address
+                            </label>
+                            <div className="relative">
+                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                                <input
+                                    type="email"
+                                    value={profile.email}
+                                    onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                                    className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        {/* Phone */}
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                                Phone Number
+                            </label>
+                            <div className="relative">
+                                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                                <input
+                                    type="tel"
+                                    value={profile.phoneNumber}
+                                    onChange={(e) => setProfile({ ...profile, phoneNumber: e.target.value })}
+                                    className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Submit Button */}
+                        <Button
+                            type="submit"
+                            disabled={isLoading}
+                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+                        >
+                            {isLoading ? (
+                                <>
+                                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                                    Saving...
+                                </>
+                            ) : (
+                                <>
+                                    <Save className="h-5 w-5 mr-2" />
+                                    Save Changes
+                                </>
+                            )}
+                        </Button>
+                    </form>
+                </motion.div>
+            )}
+
+            {/* Password Tab */}
+            {activeTab === "password" && (
+                <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="bg-white rounded-2xl p-8 shadow-sm border border-slate-100"
+                >
+                    <h2 className="text-lg font-bold text-slate-800 mb-6">Change Password</h2>
+                    <form onSubmit={handlePasswordChange} className="space-y-6">
+                        {/* Current Password */}
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                                Current Password
+                            </label>
+                            <div className="relative">
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                                <input
+                                    type="password"
+                                    value={passwords.currentPassword}
+                                    onChange={(e) => setPasswords({ ...passwords, currentPassword: e.target.value })}
+                                    className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        {/* New Password */}
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                                New Password
+                            </label>
+                            <div className="relative">
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                                <input
+                                    type="password"
+                                    value={passwords.newPassword}
+                                    onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })}
+                                    className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                                    required
+                                    minLength={6}
+                                />
+                            </div>
+                            <p className="text-xs text-slate-500 mt-1">Minimum 6 characters</p>
+                        </div>
+
+                        {/* Confirm Password */}
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                                Confirm New Password
+                            </label>
+                            <div className="relative">
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                                <input
+                                    type="password"
+                                    value={passwords.confirmPassword}
+                                    onChange={(e) => setPasswords({ ...passwords, confirmPassword: e.target.value })}
+                                    className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        {/* Submit Button */}
+                        <Button
+                            type="submit"
+                            disabled={isLoading}
+                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+                        >
+                            {isLoading ? (
+                                <>
+                                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                                    Changing Password...
+                                </>
+                            ) : (
+                                <>
+                                    <Lock className="h-5 w-5 mr-2" />
+                                    Change Password
+                                </>
+                            )}
+                        </Button>
+                    </form>
+                </motion.div>
+            )}
+        </div>
     );
 }

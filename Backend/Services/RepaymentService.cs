@@ -40,20 +40,20 @@ namespace LendSecureSystem.Services
             var totalInterest = totalAmount * interestRate * (termMonths / 12m);
             var totalRepayment = totalAmount + totalInterest;
             
-            // 4 weekly installments
-            var numberOfPayments = 4;
+            // Monthly installments matching loan term
+            var numberOfPayments = termMonths; // Use actual term months
             var installmentAmount = totalRepayment / numberOfPayments;
             var principalPerPayment = totalAmount / numberOfPayments;
             var interestPerPayment = totalInterest / numberOfPayments;
 
-            // Generate 4 weekly repayments
+            // Generate monthly repayments
             for (int i = 0; i < numberOfPayments; i++)
             {
                 var repayment = new Repayment
                 {
                     RepaymentId = Guid.NewGuid(),
                     LoanId = loanId,
-                    ScheduledDate = DateTime.UtcNow.AddDays(7 * (i + 1)), // Week 1, 2, 3, 4
+                    ScheduledDate = DateTime.UtcNow.AddMonths(i + 1), // Monthly payments
                     PrincipalAmount = principalPerPayment,
                     InterestAmount = interestPerPayment,
                     Status = "Pending"
@@ -63,6 +63,27 @@ namespace LendSecureSystem.Services
             }
 
             await _context.SaveChangesAsync();
+        }
+
+        // Calculate late fee for overdue repayments
+        private decimal CalculateLateFee(Repayment repayment)
+        {
+            if (repayment.Status == "Paid" || DateTime.UtcNow <= repayment.ScheduledDate)
+                return 0;
+
+            // Grace period of 3 days
+            var gracePeriod = 3;
+            var daysOverdue = (DateTime.UtcNow - repayment.ScheduledDate).Days - gracePeriod;
+
+            if (daysOverdue <= 0)
+                return 0;
+
+            // 1% per day late fee on the total amount
+            var totalAmount = repayment.PrincipalAmount + repayment.InterestAmount;
+            var lateFeeRate = 0.01m; // 1% per day
+            var lateFee = totalAmount * lateFeeRate * daysOverdue;
+
+            return Math.Round(lateFee, 2);
         }
 
         public async Task<List<RepaymentResponseDto>> GetLoanRepaymentsAsync(Guid loanId)
@@ -77,7 +98,8 @@ namespace LendSecureSystem.Services
                     ScheduledDate = r.ScheduledDate,
                     PrincipalAmount = r.PrincipalAmount,
                     InterestAmount = r.InterestAmount,
-                    TotalAmount = r.PrincipalAmount + r.InterestAmount,
+                    LateFee = r.LateFee,
+                    TotalAmount = r.PrincipalAmount + r.InterestAmount + r.LateFee,
                     Status = r.Status,
                     PaidAt = r.PaidAt
                 })
@@ -90,22 +112,29 @@ namespace LendSecureSystem.Services
         {
             var repayments = await _context.Repayments
                 .Include(r => r.Loan)
-                .Where(r => r.Loan.BorrowerId == borrowerId && r.Status == "Pending")
-                .OrderBy(r => r.ScheduledDate)
-                .Select(r => new RepaymentResponseDto
+                .Where(r => r.Loan.BorrowerId == borrowerId)
+                .OrderByDescending(r => r.ScheduledDate)
+                .ToListAsync();
+
+            // Calculate late fees for each repayment
+            var repaymentDtos = repayments.Select(r =>
+            {
+                var lateFee = CalculateLateFee(r);
+                return new RepaymentResponseDto
                 {
                     RepaymentId = r.RepaymentId,
                     LoanId = r.LoanId,
                     ScheduledDate = r.ScheduledDate,
                     PrincipalAmount = r.PrincipalAmount,
                     InterestAmount = r.InterestAmount,
-                    TotalAmount = r.PrincipalAmount + r.InterestAmount,
+                    LateFee = lateFee,
+                    TotalAmount = r.PrincipalAmount + r.InterestAmount + lateFee,
                     Status = r.Status,
                     PaidAt = r.PaidAt
-                })
-                .ToListAsync();
+                };
+            }).ToList();
 
-            return repayments;
+            return repaymentDtos;
         }
 
         public async Task<RepaymentResponseDto> MakePaymentAsync(Guid borrowerId, Guid repaymentId)
@@ -123,7 +152,11 @@ namespace LendSecureSystem.Services
             if (repayment.Status != "Pending")
                 throw new Exception("Repayment has already been paid.");
 
-            var totalAmount = repayment.PrincipalAmount + repayment.InterestAmount;
+            // Calculate late fee if overdue
+            var lateFee = CalculateLateFee(repayment);
+            repayment.LateFee = lateFee;
+
+            var totalAmount = repayment.PrincipalAmount + repayment.InterestAmount + lateFee;
 
             // Get borrower's wallet
             var borrowerWallet = await _context.Wallets
@@ -133,7 +166,7 @@ namespace LendSecureSystem.Services
                 throw new Exception("Wallet not found.");
 
             if (borrowerWallet.Balance < totalAmount)
-                throw new Exception($"Insufficient balance. Required: {totalAmount}, Available: {borrowerWallet.Balance}");
+                throw new Exception($"Insufficient balance. Required: {totalAmount} (including late fee: {lateFee}), Available: {borrowerWallet.Balance}");
 
             // Deduct from borrower's wallet
             borrowerWallet.Balance -= totalAmount;
@@ -202,6 +235,7 @@ namespace LendSecureSystem.Services
                 ScheduledDate = repayment.ScheduledDate,
                 PrincipalAmount = repayment.PrincipalAmount,
                 InterestAmount = repayment.InterestAmount,
+                LateFee = repayment.LateFee,
                 TotalAmount = totalAmount,
                 Status = repayment.Status,
                 PaidAt = repayment.PaidAt

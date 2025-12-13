@@ -51,7 +51,13 @@ export default function Repayments() {
         const fetchRepayments = async () => {
             try {
                 const response = await api.getMyRepayments();
-                const data = Array.isArray(response) ? response : response.data.data || response.data || [];
+                console.log('Repayments API Response:', response);
+
+                const data = Array.isArray(response)
+                    ? response
+                    : (response?.data?.data || response?.data || []);
+
+                console.log('Processed Repayments Data:', data);
                 setRepayments(data);
             } catch (error) {
                 console.error("Failed to fetch repayments", error);

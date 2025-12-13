@@ -14,6 +14,8 @@ import { motion } from "framer-motion";
 
 import api from "../../services/api";
 import { formatCurrency } from "../../lib/utils";
+import { WalletWidget } from "../../components/ui/WalletWidget";
+import { SkeletonStat, SkeletonTable } from "../../components/ui/Skeleton";
 
 interface Funding {
     fundingId: string;
@@ -93,8 +95,22 @@ export default function LenderDashboard() {
 
     if (isLoading) {
         return (
-            <div className="flex h-screen items-center justify-center bg-surface-muted">
-                <Loader2 className="h-10 w-10 animate-spin text-indigo-600" />
+            <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <SkeletonStat />
+                    <SkeletonStat />
+                    <SkeletonStat />
+                    <SkeletonStat />
+                </div>
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <div className="xl:col-span-2">
+                        <SkeletonTable rows={5} />
+                    </div>
+                    <div className="space-y-6">
+                        <SkeletonStat />
+                        <SkeletonStat />
+                    </div>
+                </div>
             </div>
         );
     }
@@ -215,6 +231,11 @@ export default function LenderDashboard() {
 
                 {/* Right Side Widgets */}
                 <div className="space-y-6">
+                    {/* Wallet Widget */}
+                    <motion.div variants={item}>
+                        <WalletWidget />
+                    </motion.div>
+
                     {/* Upcoming Repayment Widget */}
                     <motion.div variants={item} className="bg-slate-900 rounded-2xl p-6 text-white relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/20 rounded-full blur-2xl -mr-10 -mt-10"></div>

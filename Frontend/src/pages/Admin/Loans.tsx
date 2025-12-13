@@ -6,7 +6,7 @@ import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { formatCurrency, formatDate } from "../../lib/utils";
-import Modal from "../../components/ui/Modal";
+import { Modal } from "../../components/ui/Modal";
 import ConfirmationDialog from "../../components/ui/ConfirmationDialog";
 
 interface Loan {

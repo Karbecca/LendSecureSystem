@@ -12,5 +12,6 @@ namespace LendSecureSystem.DTOs.Repayments
         public decimal TotalAmount { get; set; }
         public string Status { get; set; }
         public DateTime? PaidAt { get; set; }
+        public decimal LateFee { get; set; }
     }
 }

@@ -42,7 +42,7 @@ namespace LendSecureSystem.Controllers
         }
 
         [HttpPost("add-funds")]
-        public async Task<IActionResult> AddFunds([FromBody] decimal amount)
+        public async Task<IActionResult> AddFunds([FromBody] AddFundsRequest request)
         {
             try
             {
@@ -50,7 +50,7 @@ namespace LendSecureSystem.Controllers
                 if (userIdClaim == null) return Unauthorized(new { message = "User ID not found in token." });
                 var userId = Guid.Parse(userIdClaim.Value);
 
-                var result = await _walletService.AddFundsAsync(userId, amount);
+                var result = await _walletService.AddFundsAsync(userId, request.Amount);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -58,5 +58,10 @@ namespace LendSecureSystem.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+    }
+
+    public class AddFundsRequest
+    {
+        public decimal Amount { get; set; }
     }
 }
