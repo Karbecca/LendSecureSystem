@@ -8,7 +8,6 @@ import {
     Calendar,
     Search,
     Filter,
-    Download,
     Eye,
     Percent,
     Clock,
@@ -19,7 +18,7 @@ import {
 } from "lucide-react";
 import api from "../../services/api";
 import { formatCurrency, cn } from "../../lib/utils";
-import { Modal } from "../../components/ui/Modal";
+import Modal from "../../components/ui/Modal";
 import { ExportButtons } from "../../components/ui/ExportButtons";
 import { exportToCSV, exportToPDF, formatCurrencyForExport, formatDateForExport, formatPercentageForExport } from "../../lib/export";
 
@@ -310,6 +309,7 @@ export default function MyLoans() {
             <Modal
                 isOpen={!!selectedLoan}
                 onClose={() => setSelectedLoan(null)}
+                title="Loan Details"
             >
                 {selectedLoan && (
                     <div className="relative">

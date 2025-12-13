@@ -6,7 +6,7 @@ import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { formatDate } from "../../lib/utils";
-import { Modal } from "../../components/ui/Modal";
+import Modal from "../../components/ui/Modal";
 import ConfirmationDialog from "../../components/ui/ConfirmationDialog";
 import { ExportButtons } from "../../components/ui/ExportButtons";
 import { exportToCSV, exportToPDF, formatDateForExport } from "../../lib/export";

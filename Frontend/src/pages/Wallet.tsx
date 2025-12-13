@@ -15,7 +15,7 @@ import {
 import api from "../services/api";
 import { formatCurrency, cn } from "../lib/utils";
 import { Button } from "../components/ui/Button";
-import { Modal } from "../components/ui/Modal";
+import Modal from "../components/ui/Modal";
 import { VALIDATION, validateWalletAmount, getErrorMessage } from "../lib/validation";
 import { ExportButtons } from "../components/ui/ExportButtons";
 import { exportToCSV, exportToPDF, formatCurrencyForExport, formatDateForExport } from "../lib/export";
