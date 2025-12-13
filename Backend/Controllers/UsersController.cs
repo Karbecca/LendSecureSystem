@@ -179,5 +179,37 @@ namespace LendSecureSystem.Controllers
                 });
             }
         }
+
+        /// <summary>
+        /// Change current user's password
+        /// </summary>
+        [HttpPut("password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto request)
+        {
+            try
+            {
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out Guid userId))
+                {
+                    return Unauthorized(new { success = false, message = "Invalid token" });
+                }
+
+                await _userService.ChangePasswordAsync(userId, request.CurrentPassword, request.NewPassword);
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Password changed successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+        }
     }
 }
