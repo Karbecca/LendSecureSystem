@@ -6,8 +6,10 @@ import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { formatDate } from "../../lib/utils";
-import Modal from "../../components/ui/Modal";
+import { Modal } from "../../components/ui/Modal";
 import ConfirmationDialog from "../../components/ui/ConfirmationDialog";
+import { ExportButtons } from "../../components/ui/ExportButtons";
+import { exportToCSV, exportToPDF, formatDateForExport } from "../../lib/export";
 
 interface User {
     userId: string;
@@ -102,6 +104,43 @@ export default function UserManagement() {
         setIsDetailsOpen(true);
     };
 
+    const handleExportCSV = () => {
+        const exportData = filteredUsers.map(user => ({
+            'User ID': user.userId?.substring(0, 8) || '-',
+            'Email': user.email,
+            'Role': user.role,
+            'Name': user.profile ? `${user.profile.firstName} ${user.profile.lastName}` : '-',
+            'Phone': user.profile?.phone || '-',
+            'Created': formatDateForExport(user.createdAt)
+        }));
+        exportToCSV(exportData, 'admin-users');
+    };
+
+    const handleExportPDF = () => {
+        const exportData = filteredUsers.map(user => ({
+            userId: user.userId?.substring(0, 8) || '-',
+            email: user.email,
+            role: user.role,
+            name: user.profile ? `${user.profile.firstName} ${user.profile.lastName}` : '-',
+            created: formatDateForExport(user.createdAt)
+        }));
+
+        const columns = [
+            { header: 'User ID', dataKey: 'userId' },
+            { header: 'Email', dataKey: 'email' },
+            { header: 'Role', dataKey: 'role' },
+            { header: 'Name', dataKey: 'name' },
+            { header: 'Created', dataKey: 'created' }
+        ];
+
+        const summary = [
+            { label: 'Total Users', value: filteredUsers.length.toString() },
+            { label: 'Filter', value: roleFilter }
+        ];
+
+        exportToPDF(exportData, columns, 'User Management Report', 'admin-users', summary);
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -110,6 +149,11 @@ export default function UserManagement() {
                     <p className="text-text-secondary">Manage borrowers, lenders, and administrators</p>
                 </div>
                 <div className="flex items-center gap-3">
+                    <ExportButtons
+                        onExportCSV={handleExportCSV}
+                        onExportPDF={handleExportPDF}
+                        disabled={filteredUsers.length === 0}
+                    />
                     <Button variant="outline" onClick={fetchUsers}>Refresh</Button>
 
                 </div>
