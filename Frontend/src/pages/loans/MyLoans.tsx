@@ -20,6 +20,8 @@ import {
 import api from "../../services/api";
 import { formatCurrency, cn } from "../../lib/utils";
 import { Modal } from "../../components/ui/Modal";
+import { ExportButtons } from "../../components/ui/ExportButtons";
+import { exportToCSV, exportToPDF, formatCurrencyForExport, formatDateForExport, formatPercentageForExport } from "../../lib/export";
 
 interface Loan {
     loanId: string;
@@ -29,6 +31,7 @@ interface Loan {
     status: string;
     createdAt: string;
     currency: string;
+    totalFunded?: number; // For showing funding progress
 }
 
 export default function MyLoans() {
@@ -68,6 +71,48 @@ export default function MyLoans() {
         return matchesStatus && matchesSearch;
     });
 
+    const handleExportCSV = () => {
+        const exportData = filteredLoans.map(loan => ({
+            'Loan ID': loan.loanId?.substring(0, 8) || '-',
+            'Amount': formatCurrencyForExport(loan.amountRequested, loan.currency),
+            'Interest Rate': formatPercentageForExport(loan.interestRate),
+            'Term (Months)': loan.termMonths,
+            'Status': loan.status,
+            'Funded': loan.totalFunded ? formatCurrencyForExport(loan.totalFunded, loan.currency) : 'RWF 0',
+            'Created Date': formatDateForExport(loan.createdAt)
+        }));
+        exportToCSV(exportData, 'my-loans');
+    };
+
+    const handleExportPDF = () => {
+        const exportData = filteredLoans.map(loan => ({
+            loanId: loan.loanId?.substring(0, 8) || '-',
+            amount: formatCurrencyForExport(loan.amountRequested, loan.currency),
+            interestRate: formatPercentageForExport(loan.interestRate),
+            term: `${loan.termMonths} months`,
+            status: loan.status,
+            funded: loan.totalFunded ? formatCurrencyForExport(loan.totalFunded, loan.currency) : 'RWF 0',
+            createdAt: formatDateForExport(loan.createdAt)
+        }));
+
+        const columns = [
+            { header: 'Loan ID', dataKey: 'loanId' },
+            { header: 'Amount', dataKey: 'amount' },
+            { header: 'Interest', dataKey: 'interestRate' },
+            { header: 'Term', dataKey: 'term' },
+            { header: 'Status', dataKey: 'status' },
+            { header: 'Funded', dataKey: 'funded' },
+            { header: 'Created', dataKey: 'createdAt' }
+        ];
+
+        const summary = [
+            { label: 'Total Loans', value: filteredLoans.length.toString() },
+            { label: 'Filter', value: filterStatus }
+        ];
+
+        exportToPDF(exportData, columns, 'My Loans Report', 'my-loans', summary);
+    };
+
     if (isLoading) {
         return (
             <div className="flex h-96 items-center justify-center">
@@ -88,9 +133,16 @@ export default function MyLoans() {
                     <h1 className="text-2xl font-bold text-slate-800">My Loans</h1>
                     <p className="text-slate-500 text-sm mt-1">Manage and track your loan history.</p>
                 </div>
-                <Link to="/loans/create" className="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-primary/25 transition-all flex items-center gap-2 w-fit">
-                    Request New Loan <ArrowRight className="h-4 w-4" />
-                </Link>
+                <div className="flex gap-3">
+                    <ExportButtons
+                        onExportCSV={handleExportCSV}
+                        onExportPDF={handleExportPDF}
+                        disabled={filteredLoans.length === 0}
+                    />
+                    <Link to="/loans/create" className="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-primary/25 transition-all flex items-center gap-2 w-fit">
+                        Request New Loan <ArrowRight className="h-4 w-4" />
+                    </Link>
+                </div>
             </div>
 
             {/* Filters Bar */}
@@ -184,25 +236,60 @@ export default function MyLoans() {
                                             {loan.interestRate}%
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className={cn(
-                                                "px-2.5 py-1 rounded-full text-xs font-bold border",
-                                                loan.status === 'Approved' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                                                    loan.status === 'Funded' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                                                        loan.status === 'Pending' ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                                                            loan.status === 'Repaid' ? 'bg-slate-100 text-slate-700 border-slate-200' :
-                                                                'bg-red-50 text-red-700 border-red-200'
-                                            )}>
-                                                {loan.status}
-                                            </span>
+                                            <div className="space-y-2">
+                                                <span className={cn(
+                                                    "px-2.5 py-1 rounded-full text-xs font-bold border inline-block",
+                                                    loan.status === 'Approved' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                                                        loan.status === 'Funded' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                                            loan.status === 'Pending' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                                                                loan.status === 'Repaid' ? 'bg-slate-100 text-slate-700 border-slate-200' :
+                                                                    'bg-red-50 text-red-700 border-red-200'
+                                                )}>
+                                                    {loan.status}
+                                                </span>
+
+                                                {/* Funding Progress for Approved Loans */}
+                                                {loan.status === 'Approved' && loan.totalFunded !== undefined && (
+                                                    <div className="space-y-1 mt-2">
+                                                        <div className="flex items-center justify-between text-xs">
+                                                            <span className="text-slate-500">Funded</span>
+                                                            <span className="font-bold text-slate-700">
+                                                                {formatCurrency(loan.totalFunded || 0)} / {formatCurrency(loan.amountRequested)}
+                                                            </span>
+                                                        </div>
+                                                        <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                                                            <div
+                                                                className="bg-emerald-500 h-full rounded-full transition-all duration-500"
+                                                                style={{ width: `${Math.min(((loan.totalFunded || 0) / loan.amountRequested) * 100, 100)}%` }}
+                                                            />
+                                                        </div>
+                                                        <p className="text-xs text-slate-500">
+                                                            {Math.round(((loan.totalFunded || 0) / loan.amountRequested) * 100)}% funded
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <button
-                                                onClick={() => setSelectedLoan(loan)}
-                                                className="text-slate-400 hover:text-primary transition-colors p-2 hover:bg-slate-100 rounded-lg"
-                                                title="View Details"
-                                            >
-                                                <Eye className="h-4 w-4" />
-                                            </button>
+                                            <div className="flex items-center justify-end gap-2">
+                                                {loan.status === 'Funded' && (
+                                                    <Link
+                                                        to={`/repayments/schedule/${loan.loanId}`}
+                                                        className="text-indigo-600 hover:text-indigo-700 transition-colors p-2 hover:bg-indigo-50 rounded-lg text-sm font-medium flex items-center gap-1"
+                                                        title="View Repayment Schedule"
+                                                    >
+                                                        <Calendar className="h-4 w-4" />
+                                                        Schedule
+                                                    </Link>
+                                                )}
+                                                <button
+                                                    onClick={() => setSelectedLoan(loan)}
+                                                    className="text-slate-400 hover:text-primary transition-colors p-2 hover:bg-slate-100 rounded-lg"
+                                                    title="View Details"
+                                                >
+                                                    <Eye className="h-4 w-4" />
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))

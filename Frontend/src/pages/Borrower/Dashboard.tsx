@@ -13,6 +13,8 @@ import { motion } from "framer-motion";
 
 import api from "../../services/api";
 import { formatCurrency } from "../../lib/utils";
+import { WalletWidget } from "../../components/ui/WalletWidget";
+import { SkeletonStat, SkeletonTable } from "../../components/ui/Skeleton";
 
 // Define simpler Types here for now
 interface Loan {
@@ -93,8 +95,22 @@ export default function BorrowerDashboard() {
 
     if (isLoading) {
         return (
-            <div className="flex h-screen items-center justify-center bg-surface-muted">
-                <Loader2 className="h-10 w-10 animate-spin text-primary" />
+            <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <SkeletonStat />
+                    <SkeletonStat />
+                    <SkeletonStat />
+                    <SkeletonStat />
+                </div>
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <div className="xl:col-span-2">
+                        <SkeletonTable rows={5} />
+                    </div>
+                    <div className="space-y-6">
+                        <SkeletonStat />
+                        <SkeletonStat />
+                    </div>
+                </div>
             </div>
         );
     }
@@ -126,126 +142,199 @@ export default function BorrowerDashboard() {
                 </motion.div>
             )}
 
-            {/* 2. Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <motion.div variants={item} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100/50 hover:shadow-md transition-all group">
-                    <div className="flex justify-between items-start mb-4">
-                        <div className="bg-emerald-50 p-2.5 rounded-xl group-hover:bg-emerald-100 transition-colors">
-                            <CreditCard className="h-5 w-5 text-emerald-600" />
+            {/* 2. Stats Grid - REDESIGNED */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* Wallet Balance - Green Theme */}
+                <motion.div
+                    variants={item}
+                    className="bg-gradient-to-br from-emerald-50 to-green-50 p-6 rounded-2xl shadow-sm border border-emerald-100 hover:shadow-lg transition-all group relative overflow-hidden"
+                >
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-200/20 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-emerald-200/30 transition-all"></div>
+                    <div className="relative z-10">
+                        <div className="flex justify-between items-start mb-4">
+                            <div className="bg-emerald-500 p-3 rounded-xl shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform">
+                                <CreditCard className="h-6 w-6 text-white" />
+                            </div>
+                            <span className="bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">+12%</span>
                         </div>
-                        <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-full">+12%</span>
+                        <p className="text-emerald-700 text-xs font-bold uppercase tracking-wider mb-1">Wallet Balance</p>
+                        <h3 className="text-3xl font-bold text-emerald-900 mb-2">{formatCurrency(wallet?.balance || 0)}</h3>
+                        <Link to="/wallet" className="text-emerald-600 text-sm font-semibold hover:text-emerald-700 flex items-center gap-1 group-hover:gap-2 transition-all">
+                            Manage Wallet <ArrowRight className="h-3 w-3" />
+                        </Link>
                     </div>
-                    <p className="text-slate-500 text-xs font-medium uppercase tracking-wider">Wallet Balance</p>
-                    <h3 className="text-2xl font-bold text-slate-800 mt-1">{formatCurrency(wallet?.balance || 0)}</h3>
                 </motion.div>
 
-                <motion.div variants={item} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100/50 hover:shadow-md transition-all group">
-                    <div className="flex justify-between items-start mb-4">
-                        <div className="bg-blue-50 p-2.5 rounded-xl group-hover:bg-blue-100 transition-colors">
-                            <TrendingUp className="h-5 w-5 text-blue-600" />
+                {/* Active Loans - Blue Theme */}
+                <motion.div
+                    variants={item}
+                    className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl shadow-sm border border-blue-100 hover:shadow-lg transition-all group relative overflow-hidden"
+                >
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-200/20 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-blue-200/30 transition-all"></div>
+                    <div className="relative z-10">
+                        <div className="flex justify-between items-start mb-4">
+                            <div className="bg-blue-500 p-3 rounded-xl shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
+                                <TrendingUp className="h-6 w-6 text-white" />
+                            </div>
+                            {activeLoansCount > 0 && (
+                                <span className="bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">{activeLoansCount} Active</span>
+                            )}
                         </div>
+                        <p className="text-blue-700 text-xs font-bold uppercase tracking-wider mb-1">Active Loans</p>
+                        <h3 className="text-3xl font-bold text-blue-900 mb-2">{activeLoansCount}</h3>
+                        <Link to="/loans" className="text-blue-600 text-sm font-semibold hover:text-blue-700 flex items-center gap-1 group-hover:gap-2 transition-all">
+                            View All Loans <ArrowRight className="h-3 w-3" />
+                        </Link>
                     </div>
-                    <p className="text-slate-500 text-xs font-medium uppercase tracking-wider">Active Loans</p>
-                    <h3 className="text-2xl font-bold text-slate-800 mt-1">{activeLoansCount}</h3>
                 </motion.div>
 
-                <motion.div variants={item} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100/50 hover:shadow-md transition-all group">
-                    <div className="flex justify-between items-start mb-4">
-                        <div className="bg-amber-50 p-2.5 rounded-xl group-hover:bg-amber-100 transition-colors">
-                            <Calendar className="h-5 w-5 text-amber-600" />
+                {/* Next Payment - Amber Theme */}
+                <motion.div
+                    variants={item}
+                    className="bg-gradient-to-br from-amber-50 to-orange-50 p-6 rounded-2xl shadow-sm border border-amber-100 hover:shadow-lg transition-all group relative overflow-hidden"
+                >
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-amber-200/20 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-amber-200/30 transition-all"></div>
+                    <div className="relative z-10">
+                        <div className="flex justify-between items-start mb-4">
+                            <div className="bg-amber-500 p-3 rounded-xl shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform">
+                                <Calendar className="h-6 w-6 text-white" />
+                            </div>
+                            {upcomingRepayment && (
+                                <span className="bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm animate-pulse">Due Soon</span>
+                            )}
                         </div>
-                        {upcomingRepayment && <span className="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-1 rounded-full">Due Soon</span>}
+                        <p className="text-amber-700 text-xs font-bold uppercase tracking-wider mb-1">Next Payment</p>
+                        <h3 className="text-3xl font-bold text-amber-900 mb-2">
+                            {upcomingRepayment ? formatCurrency(upcomingRepayment.totalAmount) : "N/A"}
+                        </h3>
+                        {upcomingRepayment ? (
+                            <p className="text-amber-600 text-sm font-semibold">Due {new Date(upcomingRepayment.scheduledDate).toLocaleDateString()}</p>
+                        ) : (
+                            <p className="text-amber-600 text-sm font-semibold">All caught up! 🎉</p>
+                        )}
                     </div>
-                    <p className="text-slate-500 text-xs font-medium uppercase tracking-wider">Next Payment</p>
-                    <h3 className="text-2xl font-bold text-slate-800 mt-1">
-                        {upcomingRepayment ? formatCurrency(upcomingRepayment.totalAmount) : "N/A"}
-                    </h3>
-                    {upcomingRepayment && <p className="text-xs text-slate-400 mt-1">Due {new Date(upcomingRepayment.scheduledDate).toLocaleDateString()}</p>}
                 </motion.div>
 
-                <motion.div variants={item} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100/50 hover:shadow-md transition-all group">
-                    <div className="flex justify-between items-start mb-4">
-                        <div className="bg-purple-50 p-2.5 rounded-xl group-hover:bg-purple-100 transition-colors">
-                            <ShieldCheck className="h-5 w-5 text-purple-600" />
+                {/* KYC Status - Purple Theme */}
+                <motion.div
+                    variants={item}
+                    className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-2xl shadow-sm border border-purple-100 hover:shadow-lg transition-all group relative overflow-hidden"
+                >
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-purple-200/20 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-purple-200/30 transition-all"></div>
+                    <div className="relative z-10">
+                        <div className="flex justify-between items-start mb-4">
+                            <div className={`p-3 rounded-xl shadow-lg group-hover:scale-110 transition-transform ${kycStatus === "Verified" ? "bg-purple-500 shadow-purple-500/20" : "bg-red-500 shadow-red-500/20"
+                                }`}>
+                                <ShieldCheck className="h-6 w-6 text-white" />
+                            </div>
+                            {kycStatus === "Pending" && (
+                                <span className="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm animate-pulse">Action</span>
+                            )}
                         </div>
-                        {kycStatus === "Pending" && <span className="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-1 rounded-full">Action</span>}
+                        <p className="text-purple-700 text-xs font-bold uppercase tracking-wider mb-1">KYC Status</p>
+                        <h3 className={`text-2xl font-bold mb-2 ${kycStatus === "Verified" ? "text-purple-900" :
+                            kycStatus === "Pending" ? "text-red-600" : "text-amber-600"
+                            }`}>
+                            {kycStatus}
+                        </h3>
+                        {kycStatus !== "Verified" ? (
+                            <Link to="/kyc" className="text-purple-600 text-sm font-semibold hover:text-purple-700 flex items-center gap-1 group-hover:gap-2 transition-all">
+                                Complete Now <ArrowRight className="h-3 w-3" />
+                            </Link>
+                        ) : (
+                            <p className="text-purple-600 text-sm font-semibold flex items-center gap-1">
+                                <CheckCircle2 className="h-4 w-4" /> Verified
+                            </p>
+                        )}
                     </div>
-                    <p className="text-slate-500 text-xs font-medium uppercase tracking-wider">KYC Status</p>
-                    <h3 className={`text-xl font-bold mt-1 ${kycStatus === "Verified" ? "text-emerald-600" :
-                        kycStatus === "Pending" ? "text-red-500" : "text-amber-500"
-                        }`}>
-                        {kycStatus}
-                    </h3>
                 </motion.div>
             </div>
 
-            {/* 3. Main Content Split */}
+            {/* 3. Main Content Split - REDESIGNED */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
-                {/* Active Loans Table */}
+                {/* Recent Loans - Card Layout */}
                 <motion.div variants={item} className="xl:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                     <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-                        <h3 className="text-lg font-bold text-slate-800">My Active Loans</h3>
-                        <Link to="/loans" className="text-sm text-primary font-medium hover:underline flex items-center gap-1">
-                            View All <ArrowRight className="h-4 w-4" />
+                        <div>
+                            <h3 className="text-lg font-bold text-slate-800">Recent Loans</h3>
+                            <p className="text-sm text-slate-500 mt-0.5">Track your loan applications</p>
+                        </div>
+                        <Link to="/loans" className="text-sm text-primary font-semibold hover:underline flex items-center gap-1 group">
+                            View All <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                         </Link>
                     </div>
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead className="bg-surface-muted/50 text-xs uppercase text-slate-500 font-semibold">
-                                <tr>
-                                    <th className="px-6 py-4">Loan ID</th>
-                                    <th className="px-6 py-4">Amount</th>
-                                    <th className="px-6 py-4">Duration</th>
-                                    <th className="px-6 py-4">Interest</th>
-                                    <th className="px-6 py-4">Status</th>
-                                    <th className="px-6 py-4">Date</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                                {loans.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={6} className="px-6 py-8 text-center text-slate-500 text-sm">
-                                            No active loans found.
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    loans.slice(0, 5).map((loan) => (
-                                        <tr key={loan.loanId} className="hover:bg-slate-50/50 transition-colors">
-                                            <td className="px-6 py-4 text-sm font-medium text-slate-900">
-                                                #{loan.loanId ? loan.loanId.substring(0, 8) : 'N/A'}...
-                                            </td>
-                                            <td className="px-6 py-4 text-sm font-bold text-slate-800">
-                                                {formatCurrency(loan.amountRequested)}
-                                            </td>
-                                            <td className="px-6 py-4 text-sm text-slate-600">
-                                                {loan.termMonths} Months
-                                            </td>
-                                            <td className="px-6 py-4 text-sm text-slate-600">
-                                                {loan.interestRate}%
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${loan.status === 'Approved' ? 'bg-emerald-100 text-emerald-700' :
-                                                    loan.status === 'Pending' ? 'bg-amber-100 text-amber-700' :
-                                                        loan.status === 'Rejected' ? 'bg-red-100 text-red-700' :
-                                                            'bg-blue-100 text-blue-700'
+                    <div className="p-6 space-y-4">
+                        {loans.length === 0 ? (
+                            <div className="text-center py-12">
+                                <div className="bg-slate-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <TrendingUp className="h-8 w-8 text-slate-400" />
+                                </div>
+                                <h4 className="text-lg font-semibold text-slate-800 mb-2">No Loans Yet</h4>
+                                <p className="text-slate-500 text-sm mb-6">Start your journey by requesting your first loan</p>
+                                <Link to="/loans/create" className="inline-flex items-center bg-primary text-white px-6 py-2.5 rounded-xl font-semibold hover:bg-primary/90 transition-all shadow-lg shadow-primary/25">
+                                    Request Loan <ArrowRight className="ml-2 h-4 w-4" />
+                                </Link>
+                            </div>
+                        ) : (
+                            loans.slice(0, 4).map((loan) => (
+                                <div key={loan.loanId} className="bg-gradient-to-br from-slate-50 to-white p-5 rounded-xl border border-slate-200 hover:border-primary/30 hover:shadow-md transition-all group">
+                                    <div className="flex items-start justify-between mb-3">
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <span className="text-xs font-mono text-slate-500">#{loan.loanId ? loan.loanId.substring(0, 8) : 'N/A'}</span>
+                                                <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${loan.status === 'Approved' ? 'bg-emerald-100 text-emerald-700' :
+                                                        loan.status === 'Pending' ? 'bg-amber-100 text-amber-700' :
+                                                            loan.status === 'Rejected' ? 'bg-red-100 text-red-700' :
+                                                                'bg-blue-100 text-blue-700'
                                                     }`}>
                                                     {loan.status}
                                                 </span>
-                                            </td>
-                                            <td className="px-6 py-4 text-sm text-slate-500">
-                                                {new Date(loan.createdAt).toLocaleDateString()}
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
+                                            </div>
+                                            <div className="grid grid-cols-3 gap-4">
+                                                <div>
+                                                    <p className="text-xs text-slate-500 mb-0.5">Amount</p>
+                                                    <p className="text-lg font-bold text-slate-900">{formatCurrency(loan.amountRequested)}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs text-slate-500 mb-0.5">Duration</p>
+                                                    <p className="text-sm font-semibold text-slate-700">{loan.termMonths} months</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs text-slate-500 mb-0.5">Interest</p>
+                                                    <p className="text-sm font-semibold text-slate-700">{loan.interestRate}%</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <Link
+                                            to={`/loans/${loan.loanId}`}
+                                            className="ml-4 bg-slate-100 hover:bg-primary hover:text-white p-2 rounded-lg transition-all group-hover:scale-110"
+                                        >
+                                            <ArrowRight className="h-4 w-4" />
+                                        </Link>
+                                    </div>
+                                    <div className="flex items-center justify-between text-xs text-slate-500 pt-3 border-t border-slate-100">
+                                        <span>Applied {new Date(loan.createdAt).toLocaleDateString()}</span>
+                                        {loan.status === 'Approved' && (
+                                            <span className="text-emerald-600 font-semibold flex items-center gap-1">
+                                                <CheckCircle2 className="h-3 w-3" /> Ready to fund
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </motion.div>
 
                 {/* Right Side Widgets */}
                 <div className="space-y-6">
+                    {/* Wallet Widget */}
+                    <motion.div variants={item}>
+                        <WalletWidget />
+                    </motion.div>
+
+                    {/* Upcoming Payment Widget */}
                     <motion.div variants={item} className="bg-slate-900 rounded-2xl p-6 text-white relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-2xl -mr-10 -mt-10"></div>
                         <h3 className="text-lg font-bold mb-6 relative z-10">Upcoming Payment</h3>
