@@ -101,15 +101,17 @@ export default function Register() {
                 <div className="absolute bottom-0 left-0 w-[50%] h-[50%] bg-primary/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
             </div>
 
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-                className="w-full max-w-4xl bg-white rounded-[2rem] shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2 min-h-[500px] relative z-10"
+            <div
+                className="w-full max-w-6xl bg-white rounded-[2rem] shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2 min-h-[500px] relative z-10"
             >
 
                 {/* LEFT SIDE - VISUAL/IMAGE */}
-                <div className="hidden lg:flex flex-col justify-between p-8 relative overflow-hidden bg-primary text-white">
+                <motion.div
+                    initial={{ x: -200, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ duration: 2.5, ease: "easeOut" }}
+                    className="hidden lg:flex flex-col justify-between p-8 relative overflow-hidden bg-primary text-white"
+                >
                     {/* Background Image with Overlay */}
                     <div className="absolute inset-0 z-0">
                         <img
@@ -131,28 +133,37 @@ export default function Register() {
                     </div>
 
                     <div className="relative z-10 max-w-md">
-                        <h2 className="text-2xl font-bold mb-3 leading-tight">Join the Financial<br />Revolution.</h2>
-                        <p className="text-white/80 text-xs leading-relaxed mb-6">
+                        <h2 className="text-3xl font-bold mb-4 leading-tight">Join the Financial<br />Revolution.</h2>
+                        <p className="text-white/80 text-sm leading-relaxed mb-8">
                             Create an account today to start lending or borrowing with complete transparency and control.
                         </p>
-                        <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/10">
-                            <div className="flex items-center gap-3 mb-2">
-                                <Check className="h-4 w-4 text-sky-300" />
-                                <span className="text-xs font-medium">Bank-Grade Security</span>
+                        <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/10 space-y-2">
+                            <div className="flex items-center gap-3">
+                                <Check className="h-5 w-5 text-sky-300" />
+                                <span className="text-sm font-medium">Bank-Grade Security</span>
                             </div>
                             <div className="flex items-center gap-3">
-                                <Check className="h-4 w-4 text-sky-300" />
-                                <span className="text-xs font-medium">No Hidden Fees</span>
+                                <Check className="h-5 w-5 text-sky-300" />
+                                <span className="text-sm font-medium">No Hidden Fees</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <Check className="h-5 w-5 text-sky-300" />
+                                <span className="text-sm font-medium">Instant Verification</span>
                             </div>
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
 
                 {/* RIGHT SIDE - FORM */}
-                <div className="flex flex-col justify-center p-8 relative bg-white overflow-y-auto">
+                <motion.div
+                    initial={{ x: 200, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ duration: 2.5, ease: "easeOut", delay: 0.1 }}
+                    className="flex flex-col justify-center p-6 lg:p-8 relative bg-white"
+                >
 
-                    <div className="lg:hidden flex justify-center mb-6">
+                    <div className="lg:hidden flex justify-center mb-4">
                         <Link to="/" className="flex items-center space-x-2">
                             <div className="bg-primary p-2 rounded-xl shadow-lg">
                                 <ShieldCheck className="h-6 w-6 text-white" />
@@ -166,7 +177,7 @@ export default function Register() {
                         <p className="text-xs text-text-secondary mt-1">Join our community of secure lending</p>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-3">
 
                         {error && (
                             <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg flex items-center animate-in fade-in slide-in-from-top-2">
@@ -175,8 +186,8 @@ export default function Register() {
                             </div>
                         )}
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1.5">
                                 <label className="text-[10px] font-semibold uppercase text-text-secondary tracking-wider ml-1">First Name</label>
                                 <div className="relative">
                                     <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -190,7 +201,7 @@ export default function Register() {
                                     />
                                 </div>
                             </div>
-                            <div className="space-y-2">
+                            <div className="space-y-1.5">
                                 <label className="text-[10px] font-semibold uppercase text-text-secondary tracking-wider ml-1">Last Name</label>
                                 <Input
                                     name="lastName"
@@ -203,71 +214,75 @@ export default function Register() {
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-semibold uppercase text-text-secondary tracking-wider ml-1">Email Address</label>
-                            <div className="relative">
-                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                <Input
-                                    name="email"
-                                    type="email"
-                                    placeholder="name@example.com"
-                                    className="pl-9 h-10 bg-surface-muted/30 border-surface-border focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all rounded-xl text-sm"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    required
-                                />
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-semibold uppercase text-text-secondary tracking-wider ml-1">Email Address</label>
+                                <div className="relative">
+                                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                    <Input
+                                        name="email"
+                                        type="email"
+                                        placeholder="name@example.com"
+                                        className="pl-9 h-10 bg-surface-muted/30 border-surface-border focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all rounded-xl text-sm"
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-semibold uppercase text-text-secondary tracking-wider ml-1">Phone Number</label>
+                                <div className="relative">
+                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                    <Input
+                                        name="phone"
+                                        type="tel"
+                                        placeholder="+1 (555) 000-0000"
+                                        className="pl-9 h-10 bg-surface-muted/30 border-surface-border focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all rounded-xl text-sm"
+                                        value={formData.phone}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-semibold uppercase text-text-secondary tracking-wider ml-1">Phone Number</label>
-                            <div className="relative">
-                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                <Input
-                                    name="phone"
-                                    type="tel"
-                                    placeholder="+1 (555) 000-0000"
-                                    className="pl-9 h-10 bg-surface-muted/30 border-surface-border focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all rounded-xl text-sm"
-                                    value={formData.phone}
-                                    onChange={handleChange}
-                                    required
-                                />
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-semibold uppercase text-text-secondary tracking-wider ml-1">Password</label>
+                                <div className="relative">
+                                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                    <Input
+                                        name="password"
+                                        type="password"
+                                        placeholder="Create a password"
+                                        className="pl-9 h-10 bg-surface-muted/30 border-surface-border focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all rounded-xl text-sm"
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-semibold uppercase text-text-secondary tracking-wider ml-1">Confirm Password</label>
+                                <div className="relative">
+                                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                    <Input
+                                        name="confirmPassword"
+                                        type="password"
+                                        placeholder="Confirm your password"
+                                        className="pl-9 h-10 bg-surface-muted/30 border-surface-border focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all rounded-xl text-sm"
+                                        value={formData.confirmPassword}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-semibold uppercase text-text-secondary tracking-wider ml-1">Password</label>
-                            <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                <Input
-                                    name="password"
-                                    type="password"
-                                    placeholder="Create a password"
-                                    className="pl-9 h-10 bg-surface-muted/30 border-surface-border focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all rounded-xl text-sm"
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-semibold uppercase text-text-secondary tracking-wider ml-1">Confirm Password</label>
-                            <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                <Input
-                                    name="confirmPassword"
-                                    type="password"
-                                    placeholder="Confirm your password"
-                                    className="pl-9 h-10 bg-surface-muted/30 border-surface-border focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all rounded-xl text-sm"
-                                    value={formData.confirmPassword}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
+                        <div className="space-y-1.5">
                             <label className="text-[10px] font-semibold uppercase text-text-secondary tracking-wider ml-1">I want to be a:</label>
                             <div className="grid grid-cols-2 gap-3">
                                 <button
@@ -308,7 +323,7 @@ export default function Register() {
                         </Button>
                     </form>
 
-                    <div className="mt-6 text-center">
+                    <div className="mt-4 text-center">
                         <p className="text-xs text-text-secondary">
                             Already have an account?{" "}
                             <Link to="/login" className="font-bold text-primary hover:underline">
@@ -316,9 +331,9 @@ export default function Register() {
                             </Link>
                         </p>
                     </div>
-                </div>
+                </motion.div>
 
-            </motion.div>
+            </div>
         </div>
     )
 }

@@ -55,15 +55,17 @@ export default function Login() {
                 <div className="absolute bottom-0 left-0 w-[50%] h-[50%] bg-secondary/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
             </div>
 
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
+            <div
                 className="w-full max-w-4xl bg-white rounded-[2rem] shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2 min-h-[500px] relative z-10"
             >
 
                 {/* LEFT SIDE - VISUAL/IMAGE */}
-                <div className="hidden lg:flex flex-col justify-between p-8 relative overflow-hidden bg-primary text-white">
+                <motion.div
+                    initial={{ x: -200, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ duration: 2.5, ease: "easeOut" }}
+                    className="hidden lg:flex flex-col justify-between p-8 relative overflow-hidden bg-primary text-white"
+                >
                     {/* Background Image with Overlay */}
                     <div className="absolute inset-0 z-0">
                         <img
@@ -100,11 +102,16 @@ export default function Login() {
                             <span className="text-[10px] font-medium opacity-80">Join 5,000+ others</span>
                         </div >
                     </div >
-                </div >
+                </motion.div >
 
 
                 {/* RIGHT SIDE - FORM */}
-                < div className="flex flex-col justify-center p-8 relative bg-white" >
+                <motion.div
+                    initial={{ x: 200, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ duration: 2.5, ease: "easeOut", delay: 0.1 }}
+                    className="flex flex-col justify-center p-8 relative bg-white"
+                >
 
                     <div className="lg:hidden flex justify-center mb-6">
                         <Link to="/" className="flex items-center space-x-2">
@@ -185,9 +192,9 @@ export default function Login() {
                             </Link>
                         </p>
                     </div>
-                </div >
+                </motion.div >
 
-            </motion.div >
+            </div >
         </div >
     )
 }
