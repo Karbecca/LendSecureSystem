@@ -19,6 +19,8 @@ namespace LendSecureSystem.Helpers
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
             var secretKey = jwtSettings["SecretKey"];
+            if (string.IsNullOrEmpty(secretKey)) throw new InvalidOperationException("JWT SecretKey is not configured.");
+            
             var issuer = jwtSettings["Issuer"];
             var audience = jwtSettings["Audience"];
             var expiryMinutes = int.Parse(jwtSettings["ExpiryMinutes"]);
@@ -59,6 +61,7 @@ namespace LendSecureSystem.Helpers
             var audience = jwtSettings["Audience"];
 
             var tokenHandler = new JwtSecurityTokenHandler();
+            if (string.IsNullOrEmpty(secretKey)) return null;
             var key = Encoding.UTF8.GetBytes(secretKey);
 
             try

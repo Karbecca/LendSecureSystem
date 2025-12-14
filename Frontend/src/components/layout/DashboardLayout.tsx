@@ -59,7 +59,7 @@ export default function DashboardLayout() {
     // Choose navigation based on route
     const navigation = isLenderRoute ? lenderNavigation : borrowerNavigation;
     const menuLabel = isLenderRoute ? "Lender" : "Menu";
-    const accentColor = isLenderRoute ? "indigo" : "primary";
+
 
     return (
         <div className="min-h-screen bg-surface-muted flex">

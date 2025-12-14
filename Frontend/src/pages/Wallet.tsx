@@ -15,7 +15,7 @@ import {
 import api from "../services/api";
 import { formatCurrency, cn } from "../lib/utils";
 import { Button } from "../components/ui/Button";
-import Modal from "../components/ui/Modal";
+import { Modal } from "../components/ui/Modal";
 import { VALIDATION, validateWalletAmount, getErrorMessage } from "../lib/validation";
 import { ExportButtons } from "../components/ui/ExportButtons";
 import { exportToCSV, exportToPDF, formatCurrencyForExport, formatDateForExport } from "../lib/export";
@@ -318,18 +318,12 @@ export default function Wallet() {
             </div>
 
             {/* Add Funds Modal */}
-            <Modal isOpen={isAddFundsOpen} onClose={() => !isProcessing && setIsAddFundsOpen(false)}>
-                <div className="p-6">
-                    <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-xl font-bold text-slate-800">Add Funds</h3>
-                        <button
-                            onClick={() => setIsAddFundsOpen(false)}
-                            disabled={isProcessing}
-                            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
-                        >
-                            <X className="h-5 w-5 text-slate-400" />
-                        </button>
-                    </div>
+            <Modal
+                isOpen={isAddFundsOpen}
+                onClose={() => !isProcessing && setIsAddFundsOpen(false)}
+                title="Add Funds"
+            >
+                <div>
 
                     <div className="mb-6">
                         <label className="block text-sm font-medium text-slate-700 mb-2">

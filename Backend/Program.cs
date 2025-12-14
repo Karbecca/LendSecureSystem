@@ -46,35 +46,28 @@ builder.Services.AddAuthentication(options =>
 // ========================================
 // AUTHORIZATION - PBAC POLICIES
 // ========================================
-builder.Services.AddAuthorization(options =>
-{
+builder.Services.AddAuthorizationBuilder()
     // Auth Permissions
-    options.AddPolicy("ViewProfilePermission", policy =>
-        policy.Requirements.Add(new LendSecureSystem.Authorization.PermissionRequirement("auth.view_profile")));
-
-    options.AddPolicy("UpdateProfilePermission", policy =>
-        policy.Requirements.Add(new LendSecureSystem.Authorization.PermissionRequirement("auth.update_profile")));
+    .AddPolicy("ViewProfilePermission", policy =>
+        policy.Requirements.Add(new LendSecureSystem.Authorization.PermissionRequirement("auth.view_profile")))
+    .AddPolicy("UpdateProfilePermission", policy =>
+        policy.Requirements.Add(new LendSecureSystem.Authorization.PermissionRequirement("auth.update_profile")))
 
     // User Management Permissions
-    options.AddPolicy("ViewAllUsersPermission", policy =>
-        policy.Requirements.Add(new LendSecureSystem.Authorization.PermissionRequirement("users.view_all")));
-
-    options.AddPolicy("ViewAnyUserPermission", policy =>
-        policy.Requirements.Add(new LendSecureSystem.Authorization.PermissionRequirement("users.view_any")));
-
-    options.AddPolicy("UpdateUserRolePermission", policy =>
-        policy.Requirements.Add(new LendSecureSystem.Authorization.PermissionRequirement("users.update_role")));
+    .AddPolicy("ViewAllUsersPermission", policy =>
+        policy.Requirements.Add(new LendSecureSystem.Authorization.PermissionRequirement("users.view_all")))
+    .AddPolicy("ViewAnyUserPermission", policy =>
+        policy.Requirements.Add(new LendSecureSystem.Authorization.PermissionRequirement("users.view_any")))
+    .AddPolicy("UpdateUserRolePermission", policy =>
+        policy.Requirements.Add(new LendSecureSystem.Authorization.PermissionRequirement("users.update_role")))
 
     // Admin Dashboard Permissions
-    options.AddPolicy("ViewDashboardPermission", policy =>
-        policy.Requirements.Add(new LendSecureSystem.Authorization.PermissionRequirement("admin.view_dashboard")));
-
-    options.AddPolicy("ViewAuditLogsPermission", policy =>
-        policy.Requirements.Add(new LendSecureSystem.Authorization.PermissionRequirement("admin.view_audit_logs")));
-
-    options.AddPolicy("ViewCompliancePermission", policy =>
+    .AddPolicy("ViewDashboardPermission", policy =>
+        policy.Requirements.Add(new LendSecureSystem.Authorization.PermissionRequirement("admin.view_dashboard")))
+    .AddPolicy("ViewAuditLogsPermission", policy =>
+        policy.Requirements.Add(new LendSecureSystem.Authorization.PermissionRequirement("admin.view_audit_logs")))
+    .AddPolicy("ViewCompliancePermission", policy =>
         policy.Requirements.Add(new LendSecureSystem.Authorization.PermissionRequirement("admin.view_compliance")));
-});
 
 // Register permission authorization handler
 builder.Services.AddSingleton<IAuthorizationHandler, LendSecureSystem.Authorization.PermissionAuthorizationHandler>();
@@ -146,7 +139,7 @@ builder.Services.AddSwaggerGen(c =>
                     Id = "Bearer"
                 }
             },
-            new string[] { }
+            Array.Empty<string>()
         }
     });
 });
