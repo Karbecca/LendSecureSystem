@@ -122,59 +122,64 @@ export default function LenderDashboard() {
             animate="show"
             className="space-y-6"
         >
-            {/* Welcome Banner */}
-            <motion.div variants={item} className="bg-gradient-to-r from-indigo-600 to-teal-600 rounded-2xl p-6 text-white relative overflow-hidden shadow-xl">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
-                <div className="relative z-10">
-                    <h2 className="text-2xl font-bold mb-2">Welcome, Lender!</h2>
-                    <p className="text-indigo-100 text-sm mb-4">Start investing in approved loans and earn returns.</p>
-                    <Link to="/lender/loans" className="inline-flex items-center bg-white text-indigo-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-indigo-50 transition-colors">
-                        Browse Loan Requests <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                </div>
-            </motion.div>
+
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <motion.div variants={item} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100/50 hover:shadow-md transition-all group">
+                <motion.div variants={item} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-all group">
                     <div className="flex justify-between items-start mb-4">
-                        <div className="bg-indigo-50 p-2.5 rounded-xl group-hover:bg-indigo-100 transition-colors">
-                            <Wallet className="h-5 w-5 text-indigo-600" />
+                        <div className="bg-[#0B5ED7] p-3 rounded-xl shadow-lg shadow-blue-600/20 group-hover:scale-110 transition-transform">
+                            <Wallet className="h-6 w-6 text-white" />
                         </div>
+                        <span className="bg-blue-50 text-[#0B5ED7] text-xs font-bold px-2.5 py-1 rounded-full">+12%</span>
                     </div>
-                    <p className="text-slate-500 text-xs font-medium uppercase tracking-wider">Wallet Balance</p>
-                    <h3 className="text-2xl font-bold text-slate-800 mt-1">{formatCurrency(wallet?.balance || 0)}</h3>
+                    <p className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Wallet Balance</p>
+                    <h3 className="text-3xl font-bold text-slate-800 mt-1">{formatCurrency(wallet?.balance || 0)}</h3>
+                    <Link to="/lender/wallet" className="text-[#0B5ED7] text-sm font-semibold hover:text-blue-700 flex items-center gap-1 group-hover:gap-2 transition-all mt-4">
+                        Manage Wallet <ArrowRight className="h-3 w-3" />
+                    </Link>
                 </motion.div>
 
-                <motion.div variants={item} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100/50 hover:shadow-md transition-all group">
+                <motion.div variants={item} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-all group">
                     <div className="flex justify-between items-start mb-4">
-                        <div className="bg-blue-50 p-2.5 rounded-xl group-hover:bg-blue-100 transition-colors">
-                            <PiggyBank className="h-5 w-5 text-blue-600" />
+                        <div className="bg-[#0B5ED7] p-3 rounded-xl shadow-lg shadow-blue-600/20 group-hover:scale-110 transition-transform">
+                            <PiggyBank className="h-6 w-6 text-white" />
                         </div>
+                        <span className="bg-blue-50 text-[#0B5ED7] text-xs font-bold px-2.5 py-1 rounded-full">Active</span>
                     </div>
-                    <p className="text-slate-500 text-xs font-medium uppercase tracking-wider">Total Invested</p>
-                    <h3 className="text-2xl font-bold text-slate-800 mt-1">{formatCurrency(totalInvested)}</h3>
+                    <p className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Total Invested</p>
+                    <h3 className="text-3xl font-bold text-slate-800 mt-1">{formatCurrency(totalInvested)}</h3>
+                    <Link to="/lender/investments" className="text-[#0B5ED7] text-sm font-semibold hover:text-blue-700 flex items-center gap-1 group-hover:gap-2 transition-all mt-4">
+                        View Investments <ArrowRight className="h-3 w-3" />
+                    </Link>
                 </motion.div>
 
-                <motion.div variants={item} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100/50 hover:shadow-md transition-all group">
+                <motion.div variants={item} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-all group">
                     <div className="flex justify-between items-start mb-4">
-                        <div className="bg-purple-50 p-2.5 rounded-xl group-hover:bg-purple-100 transition-colors">
-                            <TrendingUp className="h-5 w-5 text-purple-600" />
+                        <div className="bg-[#0B5ED7] p-3 rounded-xl shadow-lg shadow-blue-600/20 group-hover:scale-110 transition-transform">
+                            <TrendingUp className="h-6 w-6 text-white" />
                         </div>
-                        {totalReturns > 0 && <span className="bg-indigo-100 text-indigo-700 text-[10px] font-bold px-2 py-1 rounded-full">Earned</span>}
+                        <span className="bg-blue-50 text-[#0B5ED7] text-xs font-bold px-2.5 py-1 rounded-full">Earned</span>
                     </div>
-                    <p className="text-slate-500 text-xs font-medium uppercase tracking-wider">Total Returns</p>
-                    <h3 className="text-2xl font-bold text-indigo-600 mt-1">{formatCurrency(totalReturns)}</h3>
+                    <p className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Total Returns</p>
+                    <h3 className="text-3xl font-bold text-slate-800 mt-1">{formatCurrency(totalReturns)}</h3>
+                    <Link to="/lender/repayments" className="text-[#0B5ED7] text-sm font-semibold hover:text-blue-700 flex items-center gap-1 group-hover:gap-2 transition-all mt-4">
+                        View Returns <ArrowRight className="h-3 w-3" />
+                    </Link>
                 </motion.div>
 
-                <motion.div variants={item} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100/50 hover:shadow-md transition-all group">
+                <motion.div variants={item} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-all group">
                     <div className="flex justify-between items-start mb-4">
-                        <div className="bg-amber-50 p-2.5 rounded-xl group-hover:bg-amber-100 transition-colors">
-                            <Clock className="h-5 w-5 text-amber-600" />
+                        <div className="bg-[#0B5ED7] p-3 rounded-xl shadow-lg shadow-blue-600/20 group-hover:scale-110 transition-transform">
+                            <Clock className="h-6 w-6 text-white" />
                         </div>
+                        <span className="bg-blue-50 text-[#0B5ED7] text-xs font-bold px-2.5 py-1 rounded-full">Pending</span>
                     </div>
-                    <p className="text-slate-500 text-xs font-medium uppercase tracking-wider">Pending Returns</p>
-                    <h3 className="text-2xl font-bold text-amber-600 mt-1">{formatCurrency(pendingReturns)}</h3>
+                    <p className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Pending Returns</p>
+                    <h3 className="text-3xl font-bold text-slate-800 mt-1">{formatCurrency(pendingReturns)}</h3>
+                    <Link to="/lender/repayments" className="text-[#0B5ED7] text-sm font-semibold hover:text-blue-700 flex items-center gap-1 group-hover:gap-2 transition-all mt-4">
+                        View Schedule <ArrowRight className="h-3 w-3" />
+                    </Link>
                 </motion.div>
             </div>
 
@@ -185,7 +190,7 @@ export default function LenderDashboard() {
                 <motion.div variants={item} className="xl:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                     <div className="p-6 border-b border-slate-100 flex items-center justify-between">
                         <h3 className="text-lg font-bold text-slate-800">Recent Investments</h3>
-                        <Link to="/lender/investments" className="text-sm text-indigo-600 font-medium hover:underline flex items-center gap-1">
+                        <Link to="/lender/investments" className="text-sm text-royal-card font-medium hover:underline flex items-center gap-1">
                             View All <ArrowRight className="h-4 w-4" />
                         </Link>
                     </div>
@@ -203,7 +208,7 @@ export default function LenderDashboard() {
                                 {fundings.length === 0 ? (
                                     <tr>
                                         <td colSpan={4} className="px-6 py-8 text-center text-slate-500 text-sm">
-                                            No investments yet. <Link to="/lender/loans" className="text-indigo-600 font-medium hover:underline">Browse available loans</Link>
+                                            No investments yet. <Link to="/lender/loans" className="text-royal-card font-medium hover:underline">Browse available loans</Link>
                                         </td>
                                     </tr>
                                 ) : (
@@ -215,7 +220,7 @@ export default function LenderDashboard() {
                                             <td className="px-6 py-4 text-sm text-slate-600">
                                                 #{funding.loanId?.substring(0, 8) || 'N/A'}...
                                             </td>
-                                            <td className="px-6 py-4 text-sm font-bold text-indigo-600">
+                                            <td className="px-6 py-4 text-sm font-bold text-royal-card">
                                                 {formatCurrency(funding.amount)}
                                             </td>
                                             <td className="px-6 py-4 text-sm text-slate-500">
@@ -237,47 +242,36 @@ export default function LenderDashboard() {
                     </motion.div>
 
                     {/* Upcoming Repayment Widget */}
-                    <motion.div variants={item} className="bg-slate-900 rounded-2xl p-6 text-white relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/20 rounded-full blur-2xl -mr-10 -mt-10"></div>
+                    <motion.div variants={item} className="bg-white rounded-2xl p-6 text-slate-800 border border-slate-100 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full blur-2xl -mr-10 -mt-10"></div>
                         <h3 className="text-lg font-bold mb-6 relative z-10">Upcoming Return</h3>
                         {upcomingRepayment ? (
                             <div className="relative z-10">
                                 <div className="flex justify-between items-end mb-2">
-                                    <p className="text-slate-400 text-xs uppercase tracking-wider">Expected Amount</p>
-                                    <span className="bg-indigo-500/20 text-indigo-300 text-xs font-bold px-2 py-1 rounded-lg">Pending</span>
+                                    <p className="text-slate-500 text-xs uppercase tracking-wider">Expected Amount</p>
+                                    <span className="bg-blue-50 text-royal-card text-xs font-bold px-2 py-1 rounded-lg border border-blue-100">Pending</span>
                                 </div>
-                                <h2 className="text-3xl font-bold mb-4">{formatCurrency(upcomingRepayment.totalAmount)}</h2>
-                                <div className="flex justify-between items-center text-sm text-slate-300 mb-6 bg-white/5 p-3 rounded-xl border border-white/10">
+                                <h2 className="text-3xl font-bold mb-4 text-slate-800">{formatCurrency(upcomingRepayment.totalAmount)}</h2>
+                                <div className="flex justify-between items-center text-sm text-slate-600 mb-6 bg-slate-50 p-3 rounded-xl border border-slate-100">
                                     <span>Expected Date</span>
-                                    <span className="font-semibold text-white">{new Date(upcomingRepayment.scheduledDate).toLocaleDateString()}</span>
+                                    <span className="font-semibold text-slate-800">{new Date(upcomingRepayment.scheduledDate).toLocaleDateString()}</span>
                                 </div>
-                                <Link to="/lender/repayments" className="block w-full bg-indigo-500 text-center py-3 rounded-xl font-bold hover:bg-indigo-400 transition-all shadow-lg shadow-indigo-500/25">
+                                <Link to="/lender/repayments" className="block w-full bg-royal-card text-center py-3 rounded-xl font-bold hover:bg-royal transition-all shadow-lg shadow-royal-card/25">
                                     View All Returns
                                 </Link>
                             </div>
                         ) : (
                             <div className="text-center py-8 relative z-10">
-                                <div className="bg-white/10 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
-                                    <DollarSign className="h-6 w-6 text-slate-400" />
+                                <div className="bg-blue-50 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <DollarSign className="h-6 w-6 text-royal-card" />
                                 </div>
-                                <p className="text-slate-300 font-medium">No pending returns</p>
+                                <p className="text-slate-800 font-medium">No pending returns</p>
                                 <p className="text-slate-500 text-xs mt-1">Invest in loans to start earning</p>
                             </div>
                         )}
                     </motion.div>
 
-                    {/* Available Loans CTA */}
-                    <motion.div variants={item} className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white relative overflow-hidden shadow-xl">
-                        <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-white/20 rounded-full blur-2xl"></div>
-                        <div className="flex items-center gap-3 mb-3">
-                            <FileSearch className="h-6 w-6" />
-                            <h3 className="text-lg font-bold">{approvedLoans.length} Loans Available</h3>
-                        </div>
-                        <p className="text-blue-100 text-sm mb-4">Browse approved loan requests and start investing today.</p>
-                        <Link to="/lender/loans" className="inline-flex items-center bg-white text-blue-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-50 transition-colors">
-                            Browse Loans <ArrowRight className="ml-2 h-4 w-4" />
-                        </Link>
-                    </motion.div>
+
                 </div>
             </div>
         </motion.div>

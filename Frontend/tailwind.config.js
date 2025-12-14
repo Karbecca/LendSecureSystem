@@ -8,10 +8,14 @@ export default {
         extend: {
             colors: {
                 primary: {
-                    DEFAULT: '#0A2540', // Navy Blue
-                    light: '#1B3B5F', // Lighter Navy
-                    dark: '#051324'   // Darker Navy
+                    DEFAULT: '#10b981', // Emerald 500 (Reverted)
+                    light: '#34d399',   // Emerald 400
+                    dark: '#059669',    // Emerald 600
+                    sidebarTop: '#0F2A44',
+                    sidebarBottom: '#0a1d30',
+                    card: '#10b981'     // Emerald 500
                 },
+                'royal-card': '#0B5ED7', // Custom Blue for Lender Dashboard
                 secondary: {
                     DEFAULT: '#00D4AA', // Mint/Teal
                     light: '#33DDBB',
