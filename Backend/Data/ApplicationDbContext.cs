@@ -106,11 +106,11 @@ namespace LendSecureSystem.Data
             // Set default values
             modelBuilder.Entity<User>()
                 .Property(u => u.CreatedAt)
-                .HasDefaultValueSql("SYSUTCDATETIME()");
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             modelBuilder.Entity<User>()
                 .Property(u => u.UpdatedAt)
-                .HasDefaultValueSql("SYSUTCDATETIME()");
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             // Ensure unique email
             modelBuilder.Entity<User>()

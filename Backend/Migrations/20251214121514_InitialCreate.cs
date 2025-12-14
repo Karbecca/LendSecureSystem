@@ -34,8 +34,8 @@ namespace Backend.Migrations
                     password_hash = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     role = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     mfa_enabled = table.Column<bool>(type: "boolean", nullable: true),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true, defaultValueSql: "SYSUTCDATETIME()"),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true, defaultValueSql: "SYSUTCDATETIME()")
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true, defaultValueSql: "CURRENT_TIMESTAMP")
                 },
                 constraints: table =>
                 {
