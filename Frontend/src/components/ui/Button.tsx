@@ -17,7 +17,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
         // Variants for "Radical Clarity" look
         const variants = {
-            primary: "bg-primary text-white shadow-soft hover:bg-primary-light hover:shadow-lg hover:-translate-y-0.5",
+            primary: "text-white shadow-soft hover:opacity-90 hover:shadow-lg hover:-translate-y-0.5" + " bg-[#0066CC]",
             secondary: "bg-secondary text-white shadow-soft hover:bg-secondary-light hover:shadow-lg hover:-translate-y-0.5",
             outline: "border border-surface-border bg-white text-text-primary hover:bg-surface-muted hover:text-primary",
             ghost: "hover:bg-surface-muted text-text-secondary hover:text-text-primary",

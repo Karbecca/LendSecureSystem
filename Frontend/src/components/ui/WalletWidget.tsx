@@ -1,75 +1,130 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, ArrowUpRight, ArrowDownLeft, Wallet } from "lucide-react";
+import { Wallet as WalletIcon, Plus, TrendingUp, TrendingDown, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 import api from "../../services/api";
 import { formatCurrency } from "../../lib/utils";
+import { Skeleton } from "./Skeleton";
 
-interface WalletData {
-    balance: number;
-    currency: string;
+interface Transaction {
+    transactionId: string;
+    type: string;
+    amount: number;
+    createdAt: string;
 }
 
 export function WalletWidget() {
-    const [wallet, setWallet] = useState<WalletData | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [balance, setBalance] = useState(0);
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const fetchWallet = async () => {
-            try {
-                const response = await api.getWallet();
-                setWallet(response.data || response);
-            } catch (error) {
-                console.error("Failed to fetch wallet for widget", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchWallet();
+        fetchWalletData();
     }, []);
 
-    if (loading) {
+    const fetchWalletData = async () => {
+        try {
+            const [walletData, transactionsData] = await Promise.all([
+                api.getWallet(),
+                api.getWalletTransactions()
+            ]);
+
+            const wallet = walletData.data || walletData;
+            setBalance(wallet.balance || 0);
+
+            const txList = Array.isArray(transactionsData) ? transactionsData : transactionsData.data || [];
+            setTransactions(txList.slice(0, 3)); // Last 3 transactions
+        } catch (error) {
+            console.error("Failed to fetch wallet data", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    if (isLoading) {
         return (
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center justify-center h-48">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <Skeleton variant="text" width="40%" className="mb-2 bg-slate-200" />
+                <Skeleton variant="text" width="60%" height={40} className="mb-4 bg-slate-200" />
+                <div className="space-y-2">
+                    <Skeleton variant="rectangular" height={40} className="bg-slate-200" />
+                    <Skeleton variant="rectangular" height={40} className="bg-slate-200" />
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-            <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                    <div className="bg-primary/10 p-2.5 rounded-xl">
-                        <Wallet className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-slate-800">My Wallet</h3>
-                        <p className="text-xs text-slate-500">Available Funds</p>
-                    </div>
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200"
+        >
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                    <WalletIcon className="h-5 w-5" style={{ color: '#0066CC' }} />
+                    <h3 className="font-semibold text-slate-900">Wallet Balance</h3>
                 </div>
-                <button className="text-slate-400 hover:text-primary transition-colors">
-                    <Plus className="h-5 w-5" />
-                </button>
+                <Link
+                    to="/wallet"
+                    className="hover:opacity-80 transition-colors text-sm flex items-center gap-1"
+                    style={{ color: '#0066CC' }}
+                >
+                    View All <ArrowRight className="h-4 w-4" />
+                </Link>
             </div>
 
+            {/* Balance */}
             <div className="mb-6">
-                <h2 className="text-3xl font-bold text-slate-900">{formatCurrency(wallet?.balance || 0)}</h2>
-                <div className="flex items-center gap-2 mt-1">
-                    <span className="inline-flex items-center text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
-                        <ArrowUpRight className="h-3 w-3 mr-0.5" /> +2.5%
-                    </span>
-                    <span className="text-xs text-slate-400">vs last month</span>
-                </div>
+                <p className="text-3xl font-bold text-slate-900">{formatCurrency(balance)}</p>
+                <p className="text-slate-500 text-sm mt-1">Available balance</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-                <Link to="/wallet/deposit" className="flex items-center justify-center gap-2 bg-slate-900 text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-800 transition-colors">
-                    <ArrowDownLeft className="h-4 w-4" /> Deposit
-                </Link>
-                <Link to="/wallet/withdraw" className="flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-700 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50 hover:border-slate-300 transition-colors">
-                    <ArrowUpRight className="h-4 w-4" /> Withdraw
-                </Link>
-            </div>
-        </div>
+            {/* Add Funds Button */}
+            <Link
+                to="/wallet"
+                className="w-full text-white px-4 py-3 rounded-xl font-medium transition-opacity hover:opacity-90 flex items-center justify-center gap-2 mb-4"
+                style={{ backgroundColor: '#0066CC' }}
+            >
+                <Plus className="h-4 w-4" />
+                Add Funds
+            </Link>
+
+            {/* Recent Transactions */}
+            {transactions.length > 0 && (
+                <div className="space-y-2">
+                    <p className="text-slate-500 text-xs font-medium uppercase tracking-wider mb-3">
+                        Recent Activity
+                    </p>
+                    {transactions.map((tx) => {
+                        const isCredit = tx.type?.toLowerCase().includes('credit') || false;
+                        return (
+                            <div
+                                key={tx.transactionId}
+                                className="flex items-center justify-between bg-slate-50 rounded-lg p-3 border border-slate-200"
+                            >
+                                <div className="flex items-center gap-2">
+                                    {isCredit ? (
+                                        <TrendingUp className="h-4 w-4 text-emerald-600" />
+                                    ) : (
+                                        <TrendingDown className="h-4 w-4 text-red-600" />
+                                    )}
+                                    <div>
+                                        <p className="text-sm font-medium text-slate-900">{tx.type || 'Transaction'}</p>
+                                        <p className="text-xs text-slate-500">
+                                            {new Date(tx.createdAt).toLocaleDateString()}
+                                        </p>
+                                    </div>
+                                </div>
+                                <p className={`font-bold ${isCredit ? 'text-emerald-600' : 'text-red-600'}`}>
+                                    {isCredit ? '+' : '-'}{formatCurrency(Math.abs(tx.amount))}
+                                </p>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+        </motion.div>
     );
 }

@@ -2,9 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-    CreditCard,
     Calendar,
-    DollarSign,
     Info,
     ArrowRight,
     Calculator,
@@ -26,10 +24,10 @@ export default function RequestLoan() {
         purpose?: string;
     }>({});
 
-    // Form State
-    const [amount, setAmount] = useState<number>(50000); // Default 50k
-    const [duration, setDuration] = useState<number>(12); // Default 12 months
-    const [interestRate, setInterestRate] = useState<number>(12); // Default 12%
+    // Form State - using strings for empty display
+    const [amount, setAmount] = useState<string>("");
+    const [duration, setDuration] = useState<string>("");
+    const [interestRate, setInterestRate] = useState<string>("");
     const [purpose, setPurpose] = useState<string>("");
 
     // Calculated State
@@ -39,23 +37,25 @@ export default function RequestLoan() {
 
     // Calculation Logic
     useEffect(() => {
-        const principal = amount;
-        const rate = interestRate / 100 / 12; // Monthly rate
-        const months = duration;
+        const principal = parseFloat(amount) || 0;
+        const rate = (parseFloat(interestRate) || 0) / 100 / 12; // Monthly rate
+        const months = parseFloat(duration) || 0;
 
         let monthly = 0;
-        if (rate === 0) {
-            monthly = principal / months;
-        } else {
-            monthly = (principal * rate * Math.pow(1 + rate, months)) / (Math.pow(1 + rate, months) - 1);
+        if (months > 0) {
+            if (rate === 0) {
+                monthly = principal / months;
+            } else {
+                monthly = (principal * rate * Math.pow(1 + rate, months)) / (Math.pow(1 + rate, months) - 1);
+            }
         }
 
         const total = monthly * months;
         const interest = total - principal;
 
-        setMonthlyPayment(monthly);
-        setTotalRepayment(total);
-        setTotalInterest(interest);
+        setMonthlyPayment(isNaN(monthly) ? 0 : monthly);
+        setTotalRepayment(isNaN(total) ? 0 : total);
+        setTotalInterest(isNaN(interest) ? 0 : interest);
 
     }, [amount, duration, interestRate]);
 
@@ -66,9 +66,13 @@ export default function RequestLoan() {
 
         // Validate all fields
         const errors: any = {};
-        const amountError = validateLoanAmount(amount);
-        const termError = validateLoanTerm(duration);
-        const interestError = validateInterestRate(interestRate);
+        const amountNum = parseFloat(amount) || 0;
+        const durationNum = parseFloat(duration) || 0;
+        const interestNum = parseFloat(interestRate) || 0;
+
+        const amountError = validateLoanAmount(amountNum);
+        const termError = validateLoanTerm(durationNum);
+        const interestError = validateInterestRate(interestNum);
         const purposeError = validatePurpose(purpose);
 
         if (amountError) errors.amount = amountError;
@@ -86,10 +90,10 @@ export default function RequestLoan() {
 
         try {
             await api.post("/loans", {
-                amount: amount,
-                termMonths: duration,
+                amount: amountNum,
+                termMonths: durationNum,
                 purpose: purpose,
-                interestRate: interestRate
+                interestRate: interestNum
             });
 
             // On success, redirect to dashboard or loans list
@@ -116,13 +120,13 @@ export default function RequestLoan() {
                 <p className="text-slate-500 mt-1">Configure your loan amount and duration.</p>
             </motion.div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="space-y-8">
                 {/* Configuration Form */}
                 <motion.div
                     initial={{ opacity: 1, x: 0 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 p-8"
+                    className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8"
                 >
                     <form onSubmit={handleSubmit} className="space-y-8">
                         {error && (
@@ -132,91 +136,97 @@ export default function RequestLoan() {
                             </div>
                         )}
 
-                        {/* Amount Input */}
-                        <div className="space-y-4">
-                            <label className="text-sm font-bold text-slate-700 uppercase tracking-wide">Loan Amount (RWF)</label>
-                            <div className="relative">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">RWF</span>
-                                <input
-                                    type="number"
-                                    min={VALIDATION.LOAN.AMOUNT.MIN}
-                                    max={VALIDATION.LOAN.AMOUNT.MAX}
-                                    step="1000"
-                                    value={amount}
-                                    onChange={(e) => setAmount(Number(e.target.value))}
-                                    className={cn(
-                                        "w-full pl-14 pr-4 py-3 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 transition-all font-bold text-slate-700",
-                                        validationErrors.amount
-                                            ? "border-red-300 focus:ring-red-500/20 focus:border-red-500"
-                                            : "border-slate-200 focus:ring-primary/20 focus:border-primary"
-                                    )}
-                                />
-                            </div>
-                            {validationErrors.amount ? (
-                                <p className="text-red-500 text-sm">{validationErrors.amount}</p>
-                            ) : (
-                                <div className="flex justify-between text-xs text-slate-400 font-medium">
-                                    <span>Min: {formatCurrency(VALIDATION.LOAN.AMOUNT.MIN)}</span>
-                                    <span>Max: {formatCurrency(VALIDATION.LOAN.AMOUNT.MAX)}</span>
+                        {/* Input Grid - 2 columns */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Amount Input */}
+                            <div className="space-y-4">
+                                <label className="text-sm font-bold text-slate-700 uppercase tracking-wide">Loan Amount (RWF)</label>
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">RWF</span>
+                                    <input
+                                        type="number"
+                                        min={VALIDATION.LOAN.AMOUNT.MIN}
+                                        max={VALIDATION.LOAN.AMOUNT.MAX}
+                                        step="1000"
+                                        value={amount}
+                                        onChange={(e) => setAmount(e.target.value)}
+                                        placeholder="0"
+                                        className={cn(
+                                            "w-full pl-14 pr-4 py-3 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 transition-all font-bold text-slate-700",
+                                            validationErrors.amount
+                                                ? "border-red-300 focus:ring-red-500/20 focus:border-red-500"
+                                                : "border-slate-200 focus:border-slate-400"
+                                        )}
+                                    />
                                 </div>
-                            )}
-                        </div>
-
-                        {/* Duration Input */}
-                        <div className="space-y-4">
-                            <label className="text-sm font-bold text-slate-700 uppercase tracking-wide">Duration (Months)</label>
-                            <div className="relative">
-                                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                                <input
-                                    type="number"
-                                    min={VALIDATION.LOAN.TERM.MIN}
-                                    max={VALIDATION.LOAN.TERM.MAX}
-                                    step="1"
-                                    value={duration}
-                                    onChange={(e) => setDuration(Number(e.target.value))}
-                                    className={cn(
-                                        "w-full pl-12 pr-4 py-3 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 transition-all font-bold text-slate-700",
-                                        validationErrors.term
-                                            ? "border-red-300 focus:ring-red-500/20 focus:border-red-500"
-                                            : "border-slate-200 focus:ring-primary/20 focus:border-primary"
-                                    )}
-                                />
+                                {validationErrors.amount ? (
+                                    <p className="text-red-500 text-sm">{validationErrors.amount}</p>
+                                ) : (
+                                    <div className="flex justify-between text-xs text-slate-400 font-medium">
+                                        <span>Min: {formatCurrency(VALIDATION.LOAN.AMOUNT.MIN)}</span>
+                                        <span>Max: {formatCurrency(VALIDATION.LOAN.AMOUNT.MAX)}</span>
+                                    </div>
+                                )}
                             </div>
-                            {validationErrors.term ? (
-                                <p className="text-red-500 text-sm">{validationErrors.term}</p>
-                            ) : (
-                                <div className="text-xs text-slate-400 font-medium">{VALIDATION.LOAN.TERM.LABEL}</div>
-                            )}
-                        </div>
 
-                        {/* Interest Rate Input */}
-                        <div className="space-y-4">
-                            <label className="text-sm font-bold text-slate-700 uppercase tracking-wide">Interest Rate (%)</label>
-                            <div className="relative">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">%</span>
-                                <input
-                                    type="number"
-                                    min={VALIDATION.LOAN.INTEREST.MIN}
-                                    max={VALIDATION.LOAN.INTEREST.MAX}
-                                    step="0.5"
-                                    value={interestRate}
-                                    onChange={(e) => setInterestRate(Number(e.target.value))}
-                                    className={cn(
-                                        "w-full pl-10 pr-4 py-3 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 transition-all font-bold text-slate-700",
-                                        validationErrors.interest
-                                            ? "border-red-300 focus:ring-red-500/20 focus:border-red-500"
-                                            : "border-slate-200 focus:ring-primary/20 focus:border-primary"
-                                    )}
-                                />
+                            {/* Duration Input */}
+                            <div className="space-y-4">
+                                <label className="text-sm font-bold text-slate-700 uppercase tracking-wide">Duration (Months)</label>
+                                <div className="relative">
+                                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                                    <input
+                                        type="number"
+                                        min={VALIDATION.LOAN.TERM.MIN}
+                                        max={VALIDATION.LOAN.TERM.MAX}
+                                        step="1"
+                                        value={duration}
+                                        onChange={(e) => setDuration(e.target.value)}
+                                        placeholder="0"
+                                        className={cn(
+                                            "w-full pl-12 pr-4 py-3 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 transition-all font-bold text-slate-700",
+                                            validationErrors.term
+                                                ? "border-red-300 focus:ring-red-500/20 focus:border-red-500"
+                                                : "border-slate-200 focus:border-slate-400"
+                                        )}
+                                    />
+                                </div>
+                                {validationErrors.term ? (
+                                    <p className="text-red-500 text-sm">{validationErrors.term}</p>
+                                ) : (
+                                    <div className="text-xs text-slate-400 font-medium">{VALIDATION.LOAN.TERM.LABEL}</div>
+                                )}
                             </div>
-                            {validationErrors.interest ? (
-                                <p className="text-red-500 text-sm">{validationErrors.interest}</p>
-                            ) : (
-                                <p className="text-xs text-slate-400">{VALIDATION.LOAN.INTEREST.LABEL}</p>
-                            )}
+
+                            {/* Interest Rate Input */}
+                            <div className="space-y-4">
+                                <label className="text-sm font-bold text-slate-700 uppercase tracking-wide">Interest Rate (%)</label>
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">%</span>
+                                    <input
+                                        type="number"
+                                        min={VALIDATION.LOAN.INTEREST.MIN}
+                                        max={VALIDATION.LOAN.INTEREST.MAX}
+                                        step="0.5"
+                                        value={interestRate}
+                                        onChange={(e) => setInterestRate(e.target.value)}
+                                        placeholder="0"
+                                        className={cn(
+                                            "w-full pl-10 pr-4 py-3 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 transition-all font-bold text-slate-700",
+                                            validationErrors.interest
+                                                ? "border-red-300 focus:ring-red-500/20 focus:border-red-500"
+                                                : "border-slate-200 focus:border-slate-400"
+                                        )}
+                                    />
+                                </div>
+                                {validationErrors.interest ? (
+                                    <p className="text-red-500 text-sm">{validationErrors.interest}</p>
+                                ) : (
+                                    <p className="text-xs text-slate-400">{VALIDATION.LOAN.INTEREST.LABEL}</p>
+                                )}
+                            </div>
                         </div>
 
-                        {/* Purpose Input */}
+                        {/* Purpose Input - Full Width */}
                         <div className="space-y-2">
                             <label className="text-sm font-bold text-slate-700 uppercase tracking-wide">Loan Purpose</label>
                             <div className="relative">
@@ -227,7 +237,7 @@ export default function RequestLoan() {
                                         "w-full pl-12 pr-4 py-3 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 transition-all font-medium min-h-[100px]",
                                         validationErrors.purpose
                                             ? "border-red-300 focus:ring-red-500/20 focus:border-red-500"
-                                            : "border-slate-200 focus:ring-primary/20 focus:border-primary"
+                                            : "border-slate-200 focus:border-slate-400"
                                     )}
                                     value={purpose}
                                     onChange={(e) => setPurpose(e.target.value)}
@@ -246,7 +256,8 @@ export default function RequestLoan() {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/30 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            className="w-full text-white font-bold py-4 rounded-xl shadow-lg transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            style={{ backgroundColor: '#0066CC', boxShadow: '0 10px 25px -5px rgba(0, 102, 204, 0.3)' }}
                         >
                             {isLoading ? (
                                 <><Loader2 className="h-5 w-5 animate-spin" /> Processing...</>
@@ -257,43 +268,43 @@ export default function RequestLoan() {
                     </form>
                 </motion.div>
 
-                {/* Summary / Calculator Widget */}
+                {/* Summary / Calculator Widget - Now at Bottom */}
                 <motion.div
                     initial={{ opacity: 1, x: 0 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="bg-slate-900 text-white rounded-2xl p-8 h-fit sticky top-24 shadow-2xl"
+                    className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 max-w-2xl mx-auto"
                 >
-                    <div className="flex items-center gap-3 mb-8">
-                        <div className="bg-primary p-3 rounded-xl border border-white/10 shadow-inner">
-                            <Calculator className="h-6 w-6 text-white" />
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 rounded-lg" style={{ backgroundColor: '#0066CC' }}>
+                            <Calculator className="h-5 w-5 text-white" />
                         </div>
-                        <h2 className="text-xl font-bold">Loan Summary</h2>
+                        <h2 className="text-lg font-bold text-slate-800">Loan Summary</h2>
                     </div>
 
-                    <div className="space-y-6">
-                        <div className="pb-6 border-b border-white/10">
-                            <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">Monthly Payment</p>
-                            <p className="text-3xl font-bold text-emerald-400">{formatCurrency(monthlyPayment)}</p>
+                    <div className="space-y-4">
+                        <div className="pb-4 border-b border-slate-200">
+                            <p className="text-slate-500 text-xs uppercase tracking-wider mb-1">Monthly Payment</p>
+                            <p className="text-2xl font-bold" style={{ color: '#0066CC' }}>{formatCurrency(monthlyPayment)}</p>
                         </div>
 
-                        <div className="space-y-3">
+                        <div className="space-y-2">
                             <div className="flex justify-between text-sm">
-                                <span className="text-slate-400">Principal Amount</span>
-                                <span className="font-semibold">{formatCurrency(amount)}</span>
+                                <span className="text-slate-500">Principal Amount</span>
+                                <span className="font-semibold text-slate-800">{formatCurrency(parseFloat(amount) || 0)}</span>
                             </div>
                             <div className="flex justify-between text-sm">
-                                <span className="text-slate-400">Total Interest</span>
-                                <span className="font-semibold text-rose-300">+{formatCurrency(totalInterest)}</span>
+                                <span className="text-slate-500">Total Interest</span>
+                                <span className="font-semibold text-red-600">+{formatCurrency(totalInterest)}</span>
                             </div>
-                            <div className="pt-3 border-t border-white/10 flex justify-between items-center">
-                                <span className="text-slate-300 font-medium">Total Repayment</span>
-                                <span className="text-lg font-bold text-white">{formatCurrency(totalRepayment)}</span>
+                            <div className="pt-2 border-t border-slate-200 flex justify-between items-center">
+                                <span className="text-slate-700 font-medium">Total Repayment</span>
+                                <span className="text-lg font-bold text-slate-800">{formatCurrency(totalRepayment)}</span>
                             </div>
                         </div>
 
-                        <div className="bg-white/5 p-4 rounded-xl mt-6">
-                            <p className="text-xs text-slate-400 leading-relaxed">
+                        <div className="bg-slate-50 p-3 rounded-lg mt-4">
+                            <p className="text-xs text-slate-500 leading-relaxed">
                                 <Info className="h-3 w-3 inline-block mr-1" />
                                 This is an estimate. Final terms may vary based on your credit profile and approval.
                             </p>

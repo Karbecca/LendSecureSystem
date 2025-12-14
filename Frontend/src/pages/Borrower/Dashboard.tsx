@@ -144,105 +144,101 @@ export default function BorrowerDashboard() {
 
             {/* 2. Stats Grid - REDESIGNED */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {/* Wallet Balance - Green Theme */}
+                {/* Wallet Balance - White Theme */}
                 <motion.div
                     variants={item}
-                    className="bg-gradient-to-br from-emerald-50 to-green-50 p-6 rounded-2xl shadow-sm border border-emerald-100 hover:shadow-lg transition-all group relative overflow-hidden"
+                    className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-lg transition-all group relative overflow-hidden"
                 >
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-200/20 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-emerald-200/30 transition-all"></div>
                     <div className="relative z-10">
                         <div className="flex justify-between items-start mb-4">
-                            <div className="bg-emerald-500 p-3 rounded-xl shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform">
+                            <div className="p-3 rounded-xl" style={{ backgroundColor: '#0066CC' }}>
                                 <CreditCard className="h-6 w-6 text-white" />
                             </div>
-                            <span className="bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">+12%</span>
+                            <span className="text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm" style={{ backgroundColor: '#0066CC' }}>+12%</span>
                         </div>
-                        <p className="text-emerald-700 text-xs font-bold uppercase tracking-wider mb-1">Wallet Balance</p>
-                        <h3 className="text-3xl font-bold text-emerald-900 mb-2">{formatCurrency(wallet?.balance || 0)}</h3>
-                        <Link to="/wallet" className="text-emerald-600 text-sm font-semibold hover:text-emerald-700 flex items-center gap-1 group-hover:gap-2 transition-all">
+                        <p className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Wallet Balance</p>
+                        <h3 className="text-3xl font-bold text-slate-900 mb-2">{formatCurrency(wallet?.balance || 0)}</h3>
+                        <Link to="/wallet" className="text-sm font-semibold hover:opacity-80 flex items-center gap-1 group-hover:gap-2 transition-all" style={{ color: '#0066CC' }}>
                             Manage Wallet <ArrowRight className="h-3 w-3" />
                         </Link>
                     </div>
                 </motion.div>
 
-                {/* Active Loans - Blue Theme */}
+                {/* Active Loans - White Theme */}
                 <motion.div
                     variants={item}
-                    className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl shadow-sm border border-blue-100 hover:shadow-lg transition-all group relative overflow-hidden"
+                    className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-lg transition-all group relative overflow-hidden"
                 >
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-200/20 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-blue-200/30 transition-all"></div>
                     <div className="relative z-10">
                         <div className="flex justify-between items-start mb-4">
-                            <div className="bg-blue-500 p-3 rounded-xl shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
+                            <div className="p-3 rounded-xl" style={{ backgroundColor: '#0066CC' }}>
                                 <TrendingUp className="h-6 w-6 text-white" />
                             </div>
                             {activeLoansCount > 0 && (
-                                <span className="bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">{activeLoansCount} Active</span>
+                                <span className="text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm" style={{ backgroundColor: '#0066CC' }}>{activeLoansCount} Active</span>
                             )}
                         </div>
-                        <p className="text-blue-700 text-xs font-bold uppercase tracking-wider mb-1">Active Loans</p>
-                        <h3 className="text-3xl font-bold text-blue-900 mb-2">{activeLoansCount}</h3>
-                        <Link to="/loans" className="text-blue-600 text-sm font-semibold hover:text-blue-700 flex items-center gap-1 group-hover:gap-2 transition-all">
+                        <p className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Active Loans</p>
+                        <h3 className="text-3xl font-bold text-slate-900 mb-2">{activeLoansCount}</h3>
+                        <Link to="/loans" className="text-sm font-semibold hover:opacity-80 flex items-center gap-1 group-hover:gap-2 transition-all" style={{ color: '#0066CC' }}>
                             View All Loans <ArrowRight className="h-3 w-3" />
                         </Link>
                     </div>
                 </motion.div>
 
-                {/* Next Payment - Amber Theme */}
+                {/* Next Payment - White Theme */}
                 <motion.div
                     variants={item}
-                    className="bg-gradient-to-br from-amber-50 to-orange-50 p-6 rounded-2xl shadow-sm border border-amber-100 hover:shadow-lg transition-all group relative overflow-hidden"
+                    className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-lg transition-all group relative overflow-hidden"
                 >
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-amber-200/20 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-amber-200/30 transition-all"></div>
                     <div className="relative z-10">
                         <div className="flex justify-between items-start mb-4">
-                            <div className="bg-amber-500 p-3 rounded-xl shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform">
+                            <div className="p-3 rounded-xl" style={{ backgroundColor: '#0066CC' }}>
                                 <Calendar className="h-6 w-6 text-white" />
                             </div>
                             {upcomingRepayment && (
-                                <span className="bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm animate-pulse">Due Soon</span>
+                                <span className="text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm animate-pulse" style={{ backgroundColor: '#0066CC' }}>Due Soon</span>
                             )}
                         </div>
-                        <p className="text-amber-700 text-xs font-bold uppercase tracking-wider mb-1">Next Payment</p>
-                        <h3 className="text-3xl font-bold text-amber-900 mb-2">
+                        <p className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Next Payment</p>
+                        <h3 className="text-3xl font-bold text-slate-900 mb-2">
                             {upcomingRepayment ? formatCurrency(upcomingRepayment.totalAmount) : "N/A"}
                         </h3>
                         {upcomingRepayment ? (
-                            <p className="text-amber-600 text-sm font-semibold">Due {new Date(upcomingRepayment.scheduledDate).toLocaleDateString()}</p>
+                            <p className="text-sm font-semibold" style={{ color: '#0066CC' }}>Due {new Date(upcomingRepayment.scheduledDate).toLocaleDateString()}</p>
                         ) : (
-                            <p className="text-amber-600 text-sm font-semibold">All caught up! 🎉</p>
+                            <p className="text-sm font-semibold" style={{ color: '#0066CC' }}>All caught up! 🎉</p>
                         )}
                     </div>
                 </motion.div>
 
-                {/* KYC Status - Purple Theme */}
+                {/* KYC Status - White Theme */}
                 <motion.div
                     variants={item}
-                    className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-2xl shadow-sm border border-purple-100 hover:shadow-lg transition-all group relative overflow-hidden"
+                    className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-lg transition-all group relative overflow-hidden"
                 >
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-purple-200/20 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-purple-200/30 transition-all"></div>
                     <div className="relative z-10">
                         <div className="flex justify-between items-start mb-4">
-                            <div className={`p-3 rounded-xl shadow-lg group-hover:scale-110 transition-transform ${kycStatus === "Verified" ? "bg-purple-500 shadow-purple-500/20" : "bg-red-500 shadow-red-500/20"
-                                }`}>
+                            <div className={`p-3 rounded-xl transition-transform ${kycStatus === "Verified" ? "" : "bg-red-500"
+                                }`} style={kycStatus === "Verified" ? { backgroundColor: '#0066CC' } : {}}>
                                 <ShieldCheck className="h-6 w-6 text-white" />
                             </div>
                             {kycStatus === "Pending" && (
                                 <span className="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm animate-pulse">Action</span>
                             )}
                         </div>
-                        <p className="text-purple-700 text-xs font-bold uppercase tracking-wider mb-1">KYC Status</p>
-                        <h3 className={`text-2xl font-bold mb-2 ${kycStatus === "Verified" ? "text-purple-900" :
+                        <p className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">KYC Status</p>
+                        <h3 className={`text-2xl font-bold mb-2 ${kycStatus === "Verified" ? "text-slate-900" :
                             kycStatus === "Pending" ? "text-red-600" : "text-amber-600"
                             }`}>
                             {kycStatus}
                         </h3>
                         {kycStatus !== "Verified" ? (
-                            <Link to="/kyc" className="text-purple-600 text-sm font-semibold hover:text-purple-700 flex items-center gap-1 group-hover:gap-2 transition-all">
+                            <Link to="/kyc" className="text-sm font-semibold hover:opacity-80 flex items-center gap-1 group-hover:gap-2 transition-all" style={{ color: '#0066CC' }}>
                                 Complete Now <ArrowRight className="h-3 w-3" />
                             </Link>
                         ) : (
-                            <p className="text-purple-600 text-sm font-semibold flex items-center gap-1">
+                            <p className="text-sm font-semibold flex items-center gap-1" style={{ color: '#0066CC' }}>
                                 <CheckCircle2 className="h-4 w-4" /> Verified
                             </p>
                         )}
@@ -284,9 +280,9 @@ export default function BorrowerDashboard() {
                                             <div className="flex items-center gap-2 mb-2">
                                                 <span className="text-xs font-mono text-slate-500">#{loan.loanId ? loan.loanId.substring(0, 8) : 'N/A'}</span>
                                                 <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${loan.status === 'Approved' ? 'bg-emerald-100 text-emerald-700' :
-                                                        loan.status === 'Pending' ? 'bg-amber-100 text-amber-700' :
-                                                            loan.status === 'Rejected' ? 'bg-red-100 text-red-700' :
-                                                                'bg-blue-100 text-blue-700'
+                                                    loan.status === 'Pending' ? 'bg-amber-100 text-amber-700' :
+                                                        loan.status === 'Rejected' ? 'bg-red-100 text-red-700' :
+                                                            'bg-blue-100 text-blue-700'
                                                     }`}>
                                                     {loan.status}
                                                 </span>
@@ -335,43 +331,35 @@ export default function BorrowerDashboard() {
                     </motion.div>
 
                     {/* Upcoming Payment Widget */}
-                    <motion.div variants={item} className="bg-slate-900 rounded-2xl p-6 text-white relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-2xl -mr-10 -mt-10"></div>
-                        <h3 className="text-lg font-bold mb-6 relative z-10">Upcoming Payment</h3>
+                    <motion.div variants={item} className="bg-white rounded-2xl p-6 relative overflow-hidden shadow-sm border border-slate-200">
+                        <h3 className="text-lg font-bold mb-6 relative z-10 text-slate-900">Upcoming Payment</h3>
                         {upcomingRepayment ? (
                             <div className="relative z-10">
                                 <div className="flex justify-between items-end mb-2">
-                                    <p className="text-slate-400 text-xs uppercase tracking-wider">Amount Due</p>
-                                    <span className="bg-amber-500/20 text-amber-300 text-xs font-bold px-2 py-1 rounded-lg">Pending</span>
+                                    <p className="text-slate-500 text-xs uppercase tracking-wider">Amount Due</p>
+                                    <span className="text-white text-xs font-bold px-2 py-1 rounded-lg" style={{ backgroundColor: '#0066CC' }}>Pending</span>
                                 </div>
-                                <h2 className="text-3xl font-bold mb-4">{formatCurrency(upcomingRepayment.totalAmount)}</h2>
-                                <div className="flex justify-between items-center text-sm text-slate-300 mb-6 bg-white/5 p-3 rounded-xl border border-white/10">
+                                <h2 className="text-3xl font-bold mb-4 text-slate-900">{formatCurrency(upcomingRepayment.totalAmount)}</h2>
+                                <div className="flex justify-between items-center text-sm text-slate-600 mb-6 bg-slate-50 p-3 rounded-xl border border-slate-200">
                                     <span>Due Date</span>
-                                    <span className="font-semibold text-white">{new Date(upcomingRepayment.scheduledDate).toLocaleDateString()}</span>
+                                    <span className="font-semibold text-slate-900">{new Date(upcomingRepayment.scheduledDate).toLocaleDateString()}</span>
                                 </div>
-                                <Link to="/repayments" className="block w-full bg-primary text-center py-3 rounded-xl font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/25">
+                                <Link to="/repayments" className="block w-full text-white text-center py-3 rounded-xl font-bold hover:opacity-90 transition-all shadow-lg" style={{ backgroundColor: '#0066CC' }}>
                                     Pay Now
                                 </Link>
                             </div>
                         ) : (
                             <div className="text-center py-8 relative z-10">
-                                <div className="bg-white/10 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
-                                    <CheckCircle2 className="h-6 w-6 text-emerald-400" />
+                                <div className="bg-slate-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <CheckCircle2 className="h-6 w-6" style={{ color: '#0066CC' }} />
                                 </div>
-                                <p className="text-slate-300 font-medium">No upcoming payments!</p>
+                                <p className="text-slate-900 font-medium">No upcoming payments!</p>
                                 <p className="text-slate-500 text-xs mt-1">You are all caught up.</p>
                             </div>
                         )}
                     </motion.div>
 
-                    <motion.div variants={item} className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white relative overflow-hidden shadow-xl">
-                        <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-white/20 rounded-full blur-2xl"></div>
-                        <h3 className="text-lg font-bold mb-2">Need more funds?</h3>
-                        <p className="text-blue-100 text-sm mb-4">You are eligible for a top-up loan up to $2,000 instantly.</p>
-                        <Link to="/loans/create" className="inline-flex items-center bg-white text-blue-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-50 transition-colors">
-                            Apply Now <ArrowRight className="ml-2 h-4 w-4" />
-                        </Link>
-                    </motion.div>
+
                 </div>
             </div>
         </motion.div>

@@ -113,9 +113,10 @@ export default function Settings() {
                     className={cn(
                         "px-4 py-3 font-medium text-sm transition-colors border-b-2",
                         activeTab === "profile"
-                            ? "text-indigo-600 border-indigo-600"
+                            ? "border-b-2"
                             : "text-slate-600 border-transparent hover:text-slate-800"
                     )}
+                    style={activeTab === "profile" ? { color: '#0066CC', borderBottomColor: '#0066CC' } : {}}
                 >
                     Profile Information
                 </button>
@@ -124,9 +125,10 @@ export default function Settings() {
                     className={cn(
                         "px-4 py-3 font-medium text-sm transition-colors border-b-2",
                         activeTab === "password"
-                            ? "text-indigo-600 border-indigo-600"
+                            ? "border-b-2"
                             : "text-slate-600 border-transparent hover:text-slate-800"
                     )}
+                    style={activeTab === "password" ? { color: '#0066CC', borderBottomColor: '#0066CC' } : {}}
                 >
                     Change Password
                 </button>
@@ -171,7 +173,8 @@ export default function Settings() {
                                     type="text"
                                     value={profile.fullName}
                                     onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
-                                    className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                                    className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 outline-none transition-all"
+                                    style={{ focusRingColor: 'rgba(0, 102, 204, 0.2)', focusBorderColor: '#0066CC' }}
                                     required
                                 />
                             </div>
@@ -188,7 +191,8 @@ export default function Settings() {
                                     type="email"
                                     value={profile.email}
                                     onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                                    className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                                    className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 outline-none transition-all"
+                                    style={{ focusRingColor: 'rgba(0, 102, 204, 0.2)', focusBorderColor: '#0066CC' }}
                                     required
                                 />
                             </div>
@@ -205,7 +209,8 @@ export default function Settings() {
                                     type="tel"
                                     value={profile.phoneNumber}
                                     onChange={(e) => setProfile({ ...profile, phoneNumber: e.target.value })}
-                                    className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                                    className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 outline-none transition-all"
+                                    style={{ focusRingColor: 'rgba(0, 102, 204, 0.2)', focusBorderColor: '#0066CC' }}
                                 />
                             </div>
                         </div>
@@ -214,7 +219,8 @@ export default function Settings() {
                         <Button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+                            className="w-full text-white"
+                            style={{ backgroundColor: '#0066CC' }}
                         >
                             {isLoading ? (
                                 <>
@@ -252,7 +258,8 @@ export default function Settings() {
                                     type="password"
                                     value={passwords.currentPassword}
                                     onChange={(e) => setPasswords({ ...passwords, currentPassword: e.target.value })}
-                                    className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                                    className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 outline-none transition-all"
+                                    style={{ focusRingColor: 'rgba(0, 102, 204, 0.2)', focusBorderColor: '#0066CC' }}
                                     required
                                 />
                             </div>
@@ -269,7 +276,8 @@ export default function Settings() {
                                     type="password"
                                     value={passwords.newPassword}
                                     onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })}
-                                    className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                                    className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 outline-none transition-all"
+                                    style={{ focusRingColor: 'rgba(0, 102, 204, 0.2)', focusBorderColor: '#0066CC' }}
                                     required
                                     minLength={6}
                                 />
@@ -288,7 +296,8 @@ export default function Settings() {
                                     type="password"
                                     value={passwords.confirmPassword}
                                     onChange={(e) => setPasswords({ ...passwords, confirmPassword: e.target.value })}
-                                    className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                                    className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 outline-none transition-all"
+                                    style={{ focusRingColor: 'rgba(0, 102, 204, 0.2)', focusBorderColor: '#0066CC' }}
                                     required
                                 />
                             </div>
@@ -298,7 +307,8 @@ export default function Settings() {
                         <Button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+                            className="w-full text-white"
+                            style={{ backgroundColor: '#0066CC' }}
                         >
                             {isLoading ? (
                                 <>

@@ -64,7 +64,7 @@ export default function DashboardLayout() {
     return (
         <div className="min-h-screen bg-surface-muted flex">
             {/* Sidebar Desktop */}
-            <aside className="hidden lg:flex flex-col w-64 bg-slate-900 text-white fixed h-full z-20">
+            <aside className="hidden lg:flex flex-col w-64 text-white fixed h-full z-20 shadow-xl" style={{ background: 'linear-gradient(to bottom, #0F2A44, #0a1d30)' }}>
                 <div className="p-6 flex items-center gap-3">
                     <div className={cn("p-2 rounded-lg", isLenderRoute ? "bg-indigo-600" : "bg-primary")}>
                         {isLenderRoute ? <DollarSign className="h-6 w-6 text-white" /> : <ShieldCheck className="h-6 w-6 text-white" />}
@@ -81,12 +81,12 @@ export default function DashboardLayout() {
                                 key={item.name}
                                 to={item.href}
                                 className={cn(
-                                    "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium",
+                                    "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm",
                                     isActive
                                         ? isLenderRoute
-                                            ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20"
-                                            : "bg-primary text-white shadow-lg shadow-primary/20"
-                                        : "text-slate-300 hover:bg-white/10 hover:text-white"
+                                            ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 font-extrabold border-l-4 border-white"
+                                            : "bg-primary text-white shadow-lg shadow-primary/20 font-extrabold border-l-4 border-white"
+                                        : "text-slate-300 hover:bg-white/10 hover:text-white font-medium"
                                 )}
                             >
                                 <item.icon className="h-5 w-5" />
@@ -96,7 +96,7 @@ export default function DashboardLayout() {
                     })}
                 </nav>
 
-                <div className="p-4 border-t border-slate-700">
+                <div className="p-4 border-t border-white/10">
                     <button
                         onClick={handleLogout}
                         className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-slate-300 hover:bg-red-500/10 hover:text-red-400 transition-all text-sm font-medium"
@@ -105,7 +105,7 @@ export default function DashboardLayout() {
                         Logout
                     </button>
 
-                    <div className="mt-4 flex items-center gap-3 px-4 py-2 bg-slate-800 rounded-xl">
+                    <div className="mt-4 flex items-center gap-3 px-4 py-2 bg-white/10 rounded-xl backdrop-blur-sm">
                         <div className={cn(
                             "h-8 w-8 rounded-full flex items-center justify-center font-bold text-xs border",
                             isLenderRoute
@@ -129,9 +129,9 @@ export default function DashboardLayout() {
 
             {/* Mobile Sidebar */}
             <aside className={cn(
-                "fixed inset-y-0 left-0 w-64 bg-slate-900 text-white z-40 transform transition-transform duration-300 lg:translate-x-0",
+                "fixed inset-y-0 left-0 w-64 text-white z-40 transform transition-transform duration-300 lg:translate-x-0 shadow-xl",
                 isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:hidden"
-            )}>
+            )} style={{ background: 'linear-gradient(to bottom, #0F2A44, #0a1d30)' }}>
                 <div className="p-6 flex items-center justify-between">
                     <span className="text-xl font-bold">LendSecure</span>
                     <button onClick={() => setIsMobileMenuOpen(false)}><X className="h-6 w-6" /></button>
@@ -143,10 +143,10 @@ export default function DashboardLayout() {
                             to={item.href}
                             onClick={() => setIsMobileMenuOpen(false)}
                             className={cn(
-                                "flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm font-medium",
+                                "flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm",
                                 location.pathname === item.href
-                                    ? isLenderRoute ? "bg-indigo-600 text-white" : "bg-primary text-white"
-                                    : "text-slate-300 hover:bg-white/10"
+                                    ? isLenderRoute ? "bg-indigo-600 text-white font-extrabold border-l-4 border-white" : "bg-primary text-white font-extrabold border-l-4 border-white"
+                                    : "text-slate-300 hover:bg-white/10 font-medium"
                             )}
                         >
                             <item.icon className="h-5 w-5" />
