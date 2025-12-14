@@ -119,33 +119,33 @@ export default function Repayments() {
             {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Next Payment Card */}
-                <motion.div variants={item} className="bg-slate-900 text-white p-6 rounded-2xl relative overflow-hidden shadow-lg">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-2xl -mr-10 -mt-10"></div>
+                <motion.div variants={item} className="bg-white p-6 rounded-2xl relative overflow-hidden shadow-sm border border-slate-100">
                     <div className="relative z-10">
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="bg-primary/20 p-2 rounded-lg">
-                                <Clock className="h-5 w-5 text-primary" />
+                            <div className="p-2 rounded-lg" style={{ backgroundColor: '#0066CC' }}>
+                                <Clock className="h-5 w-5 text-white" />
                             </div>
-                            <span className="text-slate-300 font-medium text-sm">Next Payment Due</span>
+                            <span className="text-slate-600 font-medium text-sm">Next Payment Due</span>
                         </div>
                         {nextDue ? (
                             <>
-                                <h3 className="text-3xl font-bold mb-1">{formatCurrency(nextDue.totalAmount)}</h3>
-                                <p className="text-slate-400 text-sm mb-4">Due on {new Date(nextDue.scheduledDate).toLocaleDateString()}</p>
+                                <h3 className="text-3xl font-bold mb-1 text-slate-800">{formatCurrency(nextDue.totalAmount)}</h3>
+                                <p className="text-slate-500 text-sm mb-4">Due on {new Date(nextDue.scheduledDate).toLocaleDateString()}</p>
                                 <button
                                     onClick={() => handlePayment(nextDue.repaymentId)}
                                     disabled={paying === nextDue.repaymentId}
-                                    className="w-full bg-primary hover:bg-primary/90 text-white py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full text-white py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
+                                    style={{ backgroundColor: '#0066CC', boxShadow: '0 10px 25px -5px rgba(0, 102, 204, 0.2)' }}
                                 >
                                     {paying === nextDue.repaymentId ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Pay Now <ArrowUpRight className="h-4 w-4" /></>}
                                 </button>
                             </>
                         ) : (
                             <div className="py-4">
-                                <h3 className="text-xl font-bold text-emerald-400 flex items-center gap-2">
+                                <h3 className="text-xl font-bold text-emerald-600 flex items-center gap-2">
                                     <CheckCircle2 className="h-5 w-5" /> All Caught Up!
                                 </h3>
-                                <p className="text-slate-400 text-sm mt-1">No pending payments.</p>
+                                <p className="text-slate-500 text-sm mt-1">No pending payments.</p>
                             </div>
                         )}
                     </div>
