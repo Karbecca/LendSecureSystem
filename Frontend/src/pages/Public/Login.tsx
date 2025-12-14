@@ -2,7 +2,7 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Mail, Lock, Loader2, AlertCircle, ShieldCheck } from "lucide-react";
+import { Mail, Lock, Loader2, AlertCircle, ShieldCheck, ArrowRight } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { Button } from "../../components/ui/Button"
 import { Input } from "../../components/ui/Input"
@@ -191,6 +191,11 @@ export default function Login() {
                                 Sign Up
                             </Link>
                         </p>
+                    </div>
+                    <div className="mt-4 text-center">
+                        <Link to="/" className="text-sm font-medium text-text-secondary hover:text-primary transition-colors flex items-center justify-center gap-2">
+                            <ArrowRight className="h-4 w-4 rotate-180" /> Back to Home
+                        </Link>
                     </div>
                 </motion.div >
 
