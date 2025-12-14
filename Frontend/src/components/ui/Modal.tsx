@@ -44,18 +44,18 @@ const Modal: React.FC<ModalProps> = ({
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
             <div
-                className={`bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full ${sizeClasses[size]} transform transition-all animate-in zoom-in-95 duration-200 border border-gray-100 dark:border-gray-700`}
+                className={`bg-white rounded-xl shadow-xl w-full ${sizeClasses[size]} transform transition-all animate-in zoom-in-95 duration-200 border border-gray-100`}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="modal-title"
             >
-                <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700">
-                    <h2 id="modal-title" className="text-xl font-semibold text-gray-900 dark:text-white">
+                <div className="flex items-center justify-between p-6 border-b border-gray-100">
+                    <h2 id="modal-title" className="text-xl font-semibold text-gray-900">
                         {title}
                     </h2>
                     <button
                         onClick={onClose}
-                        className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        className="p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
                         aria-label="Close modal"
                     >
                         <X className="w-5 h-5" />
