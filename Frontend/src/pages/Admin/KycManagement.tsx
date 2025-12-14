@@ -14,9 +14,9 @@ import ConfirmationDialog from "../../components/ui/ConfirmationDialog";
 import { Button } from "../../components/ui/Button";
 
 interface KycDocument {
-    docId: string;  // Backend uses DocId
+    docId: string; 
     userId: string;
-    docType: string;  // Backend uses DocType
+    docType: string;  
     filePath: string;
     status: "Pending" | "Approved" | "Rejected";
     reviewerId?: string;
