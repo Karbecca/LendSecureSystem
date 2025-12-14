@@ -56,9 +56,7 @@ const extendedApi = {
     getLoanRepayments: (loanId: string) => api.get(`/repayments/loan/${loanId}`).then(res => res.data),
     getMyRepayments: () => api.get('/repayments/my-repayments').then(res => res.data),
     getMyKycDocuments: () => api.get('/kyc/my-documents').then(res => res.data),
-    uploadKycDocument: (formData: FormData) => api.post('/kyc/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-    }).then(res => res.data),
+    uploadKycDocument: (formData: FormData) => api.post('/kyc/upload', formData).then(res => res.data),
     makePayment: (data: { repaymentId: string }) => api.post('/repayments/pay', data).then(res => res.data),
 
     // Lender methods
