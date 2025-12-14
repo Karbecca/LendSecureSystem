@@ -66,8 +66,8 @@ export default function DashboardLayout() {
             {/* Sidebar Desktop */}
             <aside className="hidden lg:flex flex-col w-64 bg-slate-900 text-white fixed h-full z-20">
                 <div className="p-6 flex items-center gap-3">
-                    <div className={cn("p-2 rounded-lg", isLenderRoute ? "bg-indigo-600" : "bg-primary")}>
-                        {isLenderRoute ? <DollarSign className="h-6 w-6 text-white" /> : <ShieldCheck className="h-6 w-6 text-white" />}
+                    <div className="p-2 rounded-lg bg-primary">
+                        <ShieldCheck className="h-6 w-6 text-white" />
                     </div>
                     <span className="text-xl font-bold tracking-tight">LendSecure</span>
                 </div>
@@ -83,9 +83,7 @@ export default function DashboardLayout() {
                                 className={cn(
                                     "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium",
                                     isActive
-                                        ? isLenderRoute
-                                            ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20"
-                                            : "bg-primary text-white shadow-lg shadow-primary/20"
+                                        ? "bg-primary text-white shadow-lg shadow-primary/20"
                                         : "text-slate-300 hover:bg-white/10 hover:text-white"
                                 )}
                             >
@@ -107,10 +105,7 @@ export default function DashboardLayout() {
 
                     <div className="mt-4 flex items-center gap-3 px-4 py-2 bg-slate-800 rounded-xl">
                         <div className={cn(
-                            "h-8 w-8 rounded-full flex items-center justify-center font-bold text-xs border",
-                            isLenderRoute
-                                ? "bg-indigo-600/20 text-indigo-400 border-indigo-600/30"
-                                : "bg-primary/20 text-primary border-primary/30"
+                            "h-8 w-8 rounded-full flex items-center justify-center font-bold text-xs border bg-primary/20 text-primary border-primary/30"
                         )}>
                             {user?.firstName?.[0] || "U"}{user?.lastName?.[0] || "S"}
                         </div>
@@ -120,12 +115,14 @@ export default function DashboardLayout() {
                         </div>
                     </div>
                 </div>
-            </aside>
+            </aside >
 
             {/* Mobile Sidebar Overlay */}
-            {isMobileMenuOpen && (
-                <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setIsMobileMenuOpen(false)} />
-            )}
+            {
+                isMobileMenuOpen && (
+                    <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setIsMobileMenuOpen(false)} />
+                )
+            }
 
             {/* Mobile Sidebar */}
             <aside className={cn(
@@ -145,7 +142,7 @@ export default function DashboardLayout() {
                             className={cn(
                                 "flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm font-medium",
                                 location.pathname === item.href
-                                    ? isLenderRoute ? "bg-indigo-600 text-white" : "bg-primary text-white"
+                                    ? "bg-primary text-white"
                                     : "text-slate-300 hover:bg-white/10"
                             )}
                         >
@@ -188,7 +185,7 @@ export default function DashboardLayout() {
                     <Outlet />
                 </main>
             </div>
-        </div>
+        </div >
     );
 }
 
