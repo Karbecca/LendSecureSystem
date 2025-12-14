@@ -150,7 +150,7 @@ export default function Wallet() {
     if (isLoading) {
         return (
             <div className="flex h-96 items-center justify-center">
-                <Loader2 className="h-10 w-10 animate-spin text-indigo-600" />
+                <Loader2 className="h-10 w-10 animate-spin" style={{ color: '#0066CC' }} />
             </div>
         );
     }
@@ -169,7 +169,8 @@ export default function Wallet() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="lg:col-span-2 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden group"
+                    className="lg:col-span-2 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden group"
+                    style={{ background: 'linear-gradient(to bottom right, #0066CC, #0052a3)' }}
                 >
                     <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-white/20 transition-all"></div>
                     <div className="relative z-10">
@@ -185,7 +186,8 @@ export default function Wallet() {
                             </div>
                             <Button
                                 onClick={() => setIsAddFundsOpen(true)}
-                                className="bg-white text-indigo-600 hover:bg-white/90 shadow-lg"
+                                className="bg-white hover:bg-white/90 shadow-lg"
+                                style={{ color: '#0066CC' }}
                                 size="sm"
                             >
                                 <Plus className="h-4 w-4 mr-2" />
@@ -257,9 +259,10 @@ export default function Wallet() {
                                 className={cn(
                                     "px-4 py-2 rounded-lg text-sm font-medium transition-all",
                                     filter === f
-                                        ? "bg-indigo-100 text-indigo-700"
+                                        ? "text-white"
                                         : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                                 )}
+                                style={filter === f ? { backgroundColor: '#0066CC' } : {}}
                             >
                                 {f}
                             </button>
@@ -351,8 +354,9 @@ export default function Wallet() {
                                     "w-full pl-14 pr-4 py-3 border rounded-xl focus:ring-2 outline-none transition-all",
                                     validationError
                                         ? "border-red-300 focus:ring-red-500/20 focus:border-red-500"
-                                        : "border-slate-200 focus:ring-indigo-500/20 focus:border-indigo-500"
+                                        : "border-slate-200 focus:border-slate-400"
                                 )}
+                                style={!validationError ? { focusBorderColor: '#0066CC' } : {}}
                             />
                         </div>
                         {validationError ? (
