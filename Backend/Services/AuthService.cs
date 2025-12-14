@@ -24,7 +24,7 @@ namespace LendSecureSystem.Services
             _jwtHelper = jwtHelper;
         }
 
-        public async Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request, string ipAddress, string userAgent)
+        public async Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request, string? ipAddress, string? userAgent)
         {
             // Check if email already exists
             var existingUser = await _context.Users
@@ -55,7 +55,7 @@ namespace LendSecureSystem.Services
             {
                 WalletId = Guid.NewGuid(),
                 UserId = user.UserId,
-                Balance = 10000.00m, // Demo money - 10,000 RWF
+                Balance = 10000.00m,
                 Currency = "RWF",
                 UpdatedAt = DateTime.UtcNow
             };
@@ -130,21 +130,21 @@ namespace LendSecureSystem.Services
             {
                 Token = token,
                 RefreshToken = refreshToken,
-                ExpiresIn = 3600, // 1 hour
+                ExpiresIn = 3600,
                 User = new UserDto
                 {
                     UserId = user.UserId,
                     Email = user.Email,
-                    Role = user.Role,
-                    FirstName = profile.FirstName,
-                    LastName = profile.LastName,
-                    Phone = profile.Phone,
+                    Role = user.Role ?? "User",
+                    FirstName = profile.FirstName ?? string.Empty,
+                    LastName = profile.LastName ?? string.Empty,
+                    Phone = profile.Phone ?? string.Empty,
                     CreatedAt = user.CreatedAt ?? DateTime.MinValue
                 }
             };
         }
 
-        public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request, string ipAddress, string userAgent)
+        public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request, string? ipAddress, string? userAgent)
         {
             // Find user by email
             var user = await _context.Users
@@ -186,15 +186,15 @@ namespace LendSecureSystem.Services
             {
                 Token = token,
                 RefreshToken = refreshToken,
-                ExpiresIn = 3600, // 1 hour
+                ExpiresIn = 3600,
                 User = new UserDto
                 {
                     UserId = user.UserId,
                     Email = user.Email,
-                    Role = user.Role,
-                    FirstName = user.Profile?.FirstName,
-                    LastName = user.Profile?.LastName,
-                    Phone = user.Profile?.Phone,
+                        Role = user.Role ?? "User",
+                    FirstName = user.Profile?.FirstName ?? string.Empty,
+                    LastName = user.Profile?.LastName ?? string.Empty,
+                    Phone = user.Profile?.Phone ?? string.Empty,
                     CreatedAt = user.CreatedAt ?? DateTime.MinValue
                 }
             };
@@ -202,9 +202,7 @@ namespace LendSecureSystem.Services
 
         public async Task<AuthResponseDto> RefreshTokenAsync(string refreshToken)
         {
-            // In a real app, you'd store refresh tokens in DB and validate them
-            // For now, we'll just generate a new token
-            // This is a simplified implementation
+            await Task.CompletedTask;
             throw new NotImplementedException("Refresh token logic not fully implemented yet");
         }
 
@@ -223,10 +221,10 @@ namespace LendSecureSystem.Services
             {
                 UserId = user.UserId,
                 Email = user.Email,
-                Role = user.Role,
-                FirstName = user.Profile?.FirstName,
-                LastName = user.Profile?.LastName,
-                Phone = user.Profile?.Phone,
+                Role = user.Role ?? "User",
+                FirstName = user.Profile?.FirstName ?? string.Empty,
+                LastName = user.Profile?.LastName ?? string.Empty,
+                Phone = user.Profile?.Phone ?? string.Empty,
                 CreatedAt = user.CreatedAt ?? DateTime.MinValue
             };
         }

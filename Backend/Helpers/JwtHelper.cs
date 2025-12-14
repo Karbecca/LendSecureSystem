@@ -23,7 +23,13 @@ namespace LendSecureSystem.Helpers
             
             var issuer = jwtSettings["Issuer"];
             var audience = jwtSettings["Audience"];
-            var expiryMinutes = int.Parse(jwtSettings["ExpiryMinutes"]);
+            var expiryMinutesStr = jwtSettings["ExpiryMinutes"];
+
+            if (string.IsNullOrEmpty(expiryMinutesStr))
+                throw new InvalidOperationException("JWT ExpiryMinutes is not configured.");
+
+            if (!int.TryParse(expiryMinutesStr, out int expiryMinutes))
+                throw new InvalidOperationException("JWT ExpiryMinutes must be a valid integer.");
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -31,8 +37,8 @@ namespace LendSecureSystem.Helpers
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role),
+                new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
+                new Claim(ClaimTypes.Role, user.Role ?? string.Empty),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
@@ -49,11 +55,10 @@ namespace LendSecureSystem.Helpers
 
         public string GenerateRefreshToken()
         {
-            // Simple refresh token - you can make this more sophisticated
             return Guid.NewGuid().ToString() + Guid.NewGuid().ToString();
         }
 
-        public ClaimsPrincipal ValidateToken(string token)
+        public ClaimsPrincipal? ValidateToken(string token)
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
             var secretKey = jwtSettings["SecretKey"];
@@ -62,6 +67,7 @@ namespace LendSecureSystem.Helpers
 
             var tokenHandler = new JwtSecurityTokenHandler();
             if (string.IsNullOrEmpty(secretKey)) return null;
+            
             var key = Encoding.UTF8.GetBytes(secretKey);
 
             try

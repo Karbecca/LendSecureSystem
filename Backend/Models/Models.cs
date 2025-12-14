@@ -39,14 +39,13 @@ namespace LendSecureSystem.Models
         public DateTime? UpdatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation Properties
-        public UserProfile Profile { get; set; }
-        public ICollection<KYCDocument> KYCDocuments { get; set; }
-        public ICollection<LoanRequest> LoanRequests { get; set; }
-        public ICollection<LoanFunding> Fundings { get; set; }
-        public ICollection<Wallet> Wallets { get; set; }
-        public ICollection<AuditLog> AuditLogs { get; set; }
-
-        public ICollection<UserPermission> UserPermissions { get; set; }
+        public UserProfile? Profile { get; set; }
+        public ICollection<KYCDocument> KYCDocuments { get; set; } = new List<KYCDocument>();
+        public ICollection<LoanRequest> LoanRequests { get; set; } = new List<LoanRequest>();
+        public ICollection<LoanFunding> Fundings { get; set; } = new List<LoanFunding>();
+        public ICollection<Wallet> Wallets { get; set; } = new List<Wallet>();
+        public ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
+        public ICollection<UserPermission> UserPermissions { get; set; } = new List<UserPermission>();
     }
 
     // ========================================
@@ -65,25 +64,25 @@ namespace LendSecureSystem.Models
 
         [StringLength(100)]
         [Column("first_name")]
-        public string FirstName { get; set; }
+        public string? FirstName { get; set; }
 
         [StringLength(100)]
         [Column("last_name")]
-        public string LastName { get; set; }
+        public string? LastName { get; set; }
 
         [StringLength(50)]
         [Column("phone")]
-        public string Phone { get; set; }
+        public string? Phone { get; set; }
 
         [Column("dob")]
         public DateTime? Dob { get; set; }
 
         [Column("address")]
-        public string Address { get; set; }
+        public string? Address { get; set; }
 
         // Navigation Property
         [ForeignKey("UserId")]
-        public User User { get; set; }
+        public User? User { get; set; }
     }
 
     // ========================================
@@ -102,11 +101,11 @@ namespace LendSecureSystem.Models
 
         [StringLength(100)]
         [Column("doc_type")]
-        public string DocType { get; set; }
+        public string? DocType { get; set; }
 
         [StringLength(255)]
         [Column("file_path")]
-        public string FilePath { get; set; }
+        public string? FilePath { get; set; }
 
         [StringLength(50)]
         [Column("status")]
@@ -120,10 +119,10 @@ namespace LendSecureSystem.Models
 
         // Navigation Properties
         [ForeignKey("UserId")]
-        public User User { get; set; }
+        public User? User { get; set; }
 
         [ForeignKey("ReviewerId")]
-        public User Reviewer { get; set; }
+        public User? Reviewer { get; set; }
     }
 
     // ========================================
@@ -149,7 +148,7 @@ namespace LendSecureSystem.Models
         public string Currency { get; set; } = "RWF";
 
         [Column("purpose")]
-        public string Purpose { get; set; }
+        public string? Purpose { get; set; }
 
         [Column("term_months")]
         public short TermMonths { get; set; }
@@ -172,14 +171,14 @@ namespace LendSecureSystem.Models
 
         // Navigation Properties
         [ForeignKey("BorrowerId")]
-        public User Borrower { get; set; }
+        public User? Borrower { get; set; }
 
         [ForeignKey("ApproverId")]
-        public User Approver { get; set; }
+        public User? Approver { get; set; }
 
-        public ICollection<LoanFunding> Fundings { get; set; }
-        public ICollection<Repayment> Repayments { get; set; }
-        public ICollection<WalletTransaction> Transactions { get; set; }
+        public ICollection<LoanFunding> Fundings { get; set; } = new List<LoanFunding>();
+        public ICollection<Repayment> Repayments { get; set; } = new List<Repayment>();
+        public ICollection<WalletTransaction> Transactions { get; set; } = new List<WalletTransaction>();
     }
 
     // ========================================
@@ -209,10 +208,10 @@ namespace LendSecureSystem.Models
 
         // Navigation Properties
         [ForeignKey("LoanId")]
-        public LoanRequest Loan { get; set; }
+        public LoanRequest? Loan { get; set; }
 
         [ForeignKey("LenderId")]
-        public User Lender { get; set; }
+        public User? Lender { get; set; }
     }
 
     // ========================================
@@ -245,7 +244,6 @@ namespace LendSecureSystem.Models
         [Column("status")]
         public string Status { get; set; } = "Pending";
 
-
         [Column("paid_at")]
         public DateTime? PaidAt { get; set; }
 
@@ -254,7 +252,7 @@ namespace LendSecureSystem.Models
 
         // Navigation Property
         [ForeignKey("LoanId")]
-        public LoanRequest Loan { get; set; }
+        public LoanRequest? Loan { get; set; }
     }
 
     // ========================================
@@ -283,9 +281,9 @@ namespace LendSecureSystem.Models
 
         // Navigation Properties
         [ForeignKey("UserId")]
-        public User User { get; set; }
+        public User? User { get; set; }
 
-        public ICollection<WalletTransaction> Transactions { get; set; }
+        public ICollection<WalletTransaction> Transactions { get; set; } = new List<WalletTransaction>();
     }
 
     // ========================================
@@ -323,10 +321,10 @@ namespace LendSecureSystem.Models
 
         // Navigation Properties
         [ForeignKey("WalletId")]
-        public Wallet Wallet { get; set; }
+        public Wallet? Wallet { get; set; }
 
         [ForeignKey("RelatedLoanId")]
-        public LoanRequest RelatedLoan { get; set; }
+        public LoanRequest? RelatedLoan { get; set; }
     }
 
     // ========================================
@@ -349,20 +347,20 @@ namespace LendSecureSystem.Models
         public string Action { get; set; }
 
         [Column("details")]
-        public string Details { get; set; }
+        public string? Details { get; set; }
 
         [StringLength(50)]
         [Column("ip_address")]
-        public string IpAddress { get; set; }
+        public string? IpAddress { get; set; }
 
         [Column("user_agent")]
-        public string UserAgent { get; set; }
+        public string? UserAgent { get; set; }
 
         [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation Property
         [ForeignKey("UserId")]
-        public User User { get; set; }
+        public User? User { get; set; }
     }
 }

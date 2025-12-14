@@ -23,6 +23,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"];
 
+if (string.IsNullOrEmpty(secretKey))
+    throw new InvalidOperationException("JWT SecretKey is not configured in appsettings.json");
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -79,7 +82,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://localhost:3000") // Vite default, CRA default
+        policy.WithOrigins("http://localhost:5173", "http://localhost:3000", "https://lendsecuresystem.onrender.com")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -160,7 +163,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "LendSecure API v1");
-        c.RoutePrefix = "swagger"; // Swagger at /swagger
+        c.RoutePrefix = "swagger";
     });
 }
 
@@ -168,7 +171,10 @@ if (app.Environment.IsDevelopment())
 app.UseStaticFiles();
 
 // HTTPS Redirection
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 // CORS
 app.UseCors("AllowFrontend");
@@ -179,5 +185,11 @@ app.UseAuthorization();
 
 // Map Controllers
 app.MapControllers();
+
+// ========================================
+// 8. ROOT ENDPOINT (FIX FOR 404 ERROR)
+// ========================================
+app.MapGet("/", () => new { message = "LendSecure API is running", version = "1.0.0", status = "operational" })
+    .WithName("HealthCheck");
 
 app.Run();
