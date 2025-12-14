@@ -15,10 +15,7 @@ LendSecure is a secure peer-to-peer (P2P) lending platform designed to connect v
 ### Backend
 1.  Navigate to `Backend`: `cd Backend`
 2.  Run the server: `dotnet watch`
-    *   API runs at: `http://localhost:5200`
-
-### Frontend
-1.  Navigate to `Frontend`: `cd Frontend`
-2.  Install dependencies (first time): `npm install`
-3.  Start the app: `npm run dev`
-    *   App runs at: `http://localhost:5173`
+    *   **Live API**: `https://lendsecuresystem.onrender.com/api`
+    *   **Live App**: `https://lendsecure-frontend-d63sv2k3f-jesse-shema-kyangas-projects.vercel.app`
+    *   API (Local): `http://localhost:5200`
+    *   App (Local): `http://localhost:5173`
