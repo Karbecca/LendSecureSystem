@@ -20,11 +20,12 @@ export function Navbar() {
     return (
         <nav
             className={cn(
-                "fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b",
+                "fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b border-slate-700/30",
                 isScrolled
-                    ? "bg-slate-900/95 backdrop-blur-md shadow-lg border-slate-800"
-                    : "bg-slate-900 border-slate-800 py-4"
+                    ? "backdrop-blur-md shadow-lg"
+                    : "py-4"
             )}
+            style={{ backgroundColor: '#3D4B58' }}
         >
             <div className="container mx-auto px-4 md:px-6">
                 <div className="flex h-16 items-center justify-between">
@@ -40,13 +41,13 @@ export function Navbar() {
 
                     {/* Desktop Nav */}
                     <div className="hidden md:flex items-center space-x-8">
-                        <a href="#features" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
+                        <a href="#features" className="text-sm font-medium text-slate-200 hover:text-white transition-colors">
                             Features
                         </a>
-                        <a href="#how-it-works" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
+                        <a href="#how-it-works" className="text-sm font-medium text-slate-200 hover:text-white transition-colors">
                             How it Works
                         </a>
-                        <a href="#contact" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
+                        <a href="#contact" className="text-sm font-medium text-slate-200 hover:text-white transition-colors">
                             Contact Us
                         </a>
                         <div className="flex items-center space-x-4">
@@ -61,7 +62,7 @@ export function Navbar() {
 
                     {/* Mobile Menu Button */}
                     <button
-                        className="md:hidden p-2 text-slate-300 hover:text-white"
+                        className="md:hidden p-2 text-slate-200 hover:text-white"
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                     >
                         {isMobileMenuOpen ? <X /> : <Menu />}
@@ -71,11 +72,11 @@ export function Navbar() {
 
             {/* Mobile Menu */}
             {isMobileMenuOpen && (
-                <div className="md:hidden absolute top-16 left-0 right-0 bg-slate-800 border-b border-slate-700 shadow-lg p-4 flex flex-col space-y-4 animate-in slide-in-from-top-5">
-                    <a href="#features" className="text-base font-medium text-slate-300 hover:text-white px-2 py-1" onClick={() => setIsMobileMenuOpen(false)}>Features</a>
-                    <a href="#how-it-works" className="text-base font-medium text-slate-300 hover:text-white px-2 py-1" onClick={() => setIsMobileMenuOpen(false)}>How it Works</a>
-                    <a href="#contact" className="text-base font-medium text-slate-300 hover:text-white px-2 py-1" onClick={() => setIsMobileMenuOpen(false)}>Contact Us</a>
-                    <div className="h-px bg-slate-700 w-full" />
+                <div className="md:hidden absolute top-16 left-0 right-0 shadow-lg p-4 flex flex-col space-y-4 animate-in slide-in-from-top-5" style={{ backgroundColor: '#3D4B58' }}>
+                    <a href="#features" className="text-base font-medium text-slate-200 hover:text-white px-2 py-1" onClick={() => setIsMobileMenuOpen(false)}>Features</a>
+                    <a href="#how-it-works" className="text-base font-medium text-slate-200 hover:text-white px-2 py-1" onClick={() => setIsMobileMenuOpen(false)}>How it Works</a>
+                    <a href="#contact" className="text-base font-medium text-slate-200 hover:text-white px-2 py-1" onClick={() => setIsMobileMenuOpen(false)}>Contact Us</a>
+                    <div className="h-px bg-slate-600 w-full" />
                     <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10" onClick={() => navigate("/login")}>Log in</Button>
                     <Button variant="primary" className="w-full" onClick={() => navigate("/register")}>Get Started</Button>
                 </div>
