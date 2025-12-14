@@ -43,12 +43,12 @@ export function WalletWidget() {
 
     if (isLoading) {
         return (
-            <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl p-6 shadow-lg">
-                <Skeleton variant="text" width="40%" className="mb-2 bg-white/20" />
-                <Skeleton variant="text" width="60%" height={40} className="mb-4 bg-white/20" />
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <Skeleton variant="text" width="40%" className="mb-2 bg-slate-200" />
+                <Skeleton variant="text" width="60%" height={40} className="mb-4 bg-slate-200" />
                 <div className="space-y-2">
-                    <Skeleton variant="rectangular" height={40} className="bg-white/20" />
-                    <Skeleton variant="rectangular" height={40} className="bg-white/20" />
+                    <Skeleton variant="rectangular" height={40} className="bg-slate-200" />
+                    <Skeleton variant="rectangular" height={40} className="bg-slate-200" />
                 </div>
             </div>
         );
@@ -58,17 +58,18 @@ export function WalletWidget() {
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl p-6 shadow-lg text-white"
+            className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200"
         >
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                    <WalletIcon className="h-5 w-5" />
-                    <h3 className="font-semibold">Wallet Balance</h3>
+                    <WalletIcon className="h-5 w-5" style={{ color: '#0066CC' }} />
+                    <h3 className="font-semibold text-slate-900">Wallet Balance</h3>
                 </div>
                 <Link
                     to="/wallet"
-                    className="text-white/80 hover:text-white transition-colors text-sm flex items-center gap-1"
+                    className="hover:opacity-80 transition-colors text-sm flex items-center gap-1"
+                    style={{ color: '#0066CC' }}
                 >
                     View All <ArrowRight className="h-4 w-4" />
                 </Link>
@@ -76,14 +77,15 @@ export function WalletWidget() {
 
             {/* Balance */}
             <div className="mb-6">
-                <p className="text-3xl font-bold">{formatCurrency(balance)}</p>
-                <p className="text-white/70 text-sm mt-1">Available balance</p>
+                <p className="text-3xl font-bold text-slate-900">{formatCurrency(balance)}</p>
+                <p className="text-slate-500 text-sm mt-1">Available balance</p>
             </div>
 
             {/* Add Funds Button */}
             <Link
                 to="/wallet"
-                className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-4 py-3 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 mb-4"
+                className="w-full text-white px-4 py-3 rounded-xl font-medium transition-opacity hover:opacity-90 flex items-center justify-center gap-2 mb-4"
+                style={{ backgroundColor: '#0066CC' }}
             >
                 <Plus className="h-4 w-4" />
                 Add Funds
@@ -92,7 +94,7 @@ export function WalletWidget() {
             {/* Recent Transactions */}
             {transactions.length > 0 && (
                 <div className="space-y-2">
-                    <p className="text-white/70 text-xs font-medium uppercase tracking-wider mb-3">
+                    <p className="text-slate-500 text-xs font-medium uppercase tracking-wider mb-3">
                         Recent Activity
                     </p>
                     {transactions.map((tx) => {
@@ -100,22 +102,22 @@ export function WalletWidget() {
                         return (
                             <div
                                 key={tx.transactionId}
-                                className="flex items-center justify-between bg-white/10 backdrop-blur-sm rounded-lg p-3"
+                                className="flex items-center justify-between bg-slate-50 rounded-lg p-3 border border-slate-200"
                             >
                                 <div className="flex items-center gap-2">
                                     {isCredit ? (
-                                        <TrendingUp className="h-4 w-4 text-emerald-300" />
+                                        <TrendingUp className="h-4 w-4 text-emerald-600" />
                                     ) : (
-                                        <TrendingDown className="h-4 w-4 text-red-300" />
+                                        <TrendingDown className="h-4 w-4 text-red-600" />
                                     )}
                                     <div>
-                                        <p className="text-sm font-medium">{tx.type || 'Transaction'}</p>
-                                        <p className="text-xs text-white/60">
+                                        <p className="text-sm font-medium text-slate-900">{tx.type || 'Transaction'}</p>
+                                        <p className="text-xs text-slate-500">
                                             {new Date(tx.createdAt).toLocaleDateString()}
                                         </p>
                                     </div>
                                 </div>
-                                <p className={`font-bold ${isCredit ? 'text-emerald-300' : 'text-red-300'}`}>
+                                <p className={`font-bold ${isCredit ? 'text-emerald-600' : 'text-red-600'}`}>
                                     {isCredit ? '+' : '-'}{formatCurrency(Math.abs(tx.amount))}
                                 </p>
                             </div>
