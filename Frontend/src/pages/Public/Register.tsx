@@ -193,7 +193,6 @@ export default function Register() {
                                     <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                                     <Input
                                         name="firstName"
-                                        placeholder="John"
                                         className="pl-9 h-10 bg-surface-muted/30 border-surface-border focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all rounded-xl text-sm"
                                         value={formData.firstName}
                                         onChange={handleChange}
@@ -205,7 +204,6 @@ export default function Register() {
                                 <label className="text-[10px] font-semibold uppercase text-text-secondary tracking-wider ml-1">Last Name</label>
                                 <Input
                                     name="lastName"
-                                    placeholder="Doe"
                                     className="h-10 bg-surface-muted/30 border-surface-border focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all rounded-xl text-sm"
                                     value={formData.lastName}
                                     onChange={handleChange}
@@ -222,7 +220,6 @@ export default function Register() {
                                     <Input
                                         name="email"
                                         type="email"
-                                        placeholder="name@example.com"
                                         className="pl-9 h-10 bg-surface-muted/30 border-surface-border focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all rounded-xl text-sm"
                                         value={formData.email}
                                         onChange={handleChange}
@@ -238,7 +235,6 @@ export default function Register() {
                                     <Input
                                         name="phone"
                                         type="tel"
-                                        placeholder="+1 (555) 000-0000"
                                         className="pl-9 h-10 bg-surface-muted/30 border-surface-border focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all rounded-xl text-sm"
                                         value={formData.phone}
                                         onChange={handleChange}
@@ -256,7 +252,6 @@ export default function Register() {
                                     <Input
                                         name="password"
                                         type="password"
-                                        placeholder="Create a password"
                                         className="pl-9 h-10 bg-surface-muted/30 border-surface-border focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all rounded-xl text-sm"
                                         value={formData.password}
                                         onChange={handleChange}
@@ -272,7 +267,6 @@ export default function Register() {
                                     <Input
                                         name="confirmPassword"
                                         type="password"
-                                        placeholder="Confirm your password"
                                         className="pl-9 h-10 bg-surface-muted/30 border-surface-border focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all rounded-xl text-sm"
                                         value={formData.confirmPassword}
                                         onChange={handleChange}
