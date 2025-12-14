@@ -63,7 +63,7 @@ export default function AdminLayout() {
     return (
         <div className="min-h-screen bg-surface-muted flex">
             {/* Sidebar Desktop */}
-            <aside className="hidden lg:flex flex-col w-64 bg-slate-900 text-white fixed h-full z-20">
+            <aside className="hidden lg:flex flex-col w-64 bg-slate-900 text-white fixed h-full z-20 overflow-y-auto">
                 <div className="p-6 flex items-center gap-3">
                     <div className="bg-primary p-2 rounded-lg">
                         <ShieldCheck className="h-6 w-6 text-white" />

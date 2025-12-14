@@ -150,15 +150,16 @@ namespace LendSecureSystem.Services
         public async Task ChangePasswordAsync(Guid userId, string currentPassword, string newPassword)
         {
             var user = await _context.Users.FindAsync(userId);
-
             if (user == null)
-                throw new Exception("User not found.");
+            {
+                throw new Exception("User not found");
+            }
 
-            // Verify current password
             if (!BCrypt.Net.BCrypt.Verify(currentPassword, user.PasswordHash))
-                throw new Exception("Current password is incorrect.");
+            {
+                throw new Exception("Invalid current password");
+            }
 
-            // Hash new password
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
             user.UpdatedAt = DateTime.UtcNow;
 

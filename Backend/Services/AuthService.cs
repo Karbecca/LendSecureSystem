@@ -8,6 +8,13 @@ namespace LendSecureSystem.Services
 {
     public class AuthService : IAuthService
     {
+        private static readonly string[] AdminPermissions = new[]
+        {
+            "auth.view_profile", "auth.update_profile",
+            "users.view_all", "users.view_any", "users.update_role",
+            "admin.view_dashboard", "admin.view_audit_logs", "admin.view_compliance"
+        };
+        
         private readonly ApplicationDbContext _context;
         private readonly JwtHelper _jwtHelper;
 
@@ -67,6 +74,38 @@ namespace LendSecureSystem.Services
             _context.Users.Add(user);
             _context.Wallets.Add(wallet);
             _context.UserProfiles.Add(profile);
+
+            // ============================================================
+            // GRANT PERMISSIONS FOR ADMIN
+            // ============================================================
+            if (user.Role == "Admin")
+            {
+                foreach (var permName in AdminPermissions)
+                {
+                    // 1. Ensure Permission Exists
+                    var permission = await _context.Permissions.FirstOrDefaultAsync(p => p.PermissionName == permName);
+                    if (permission == null)
+                    {
+                        permission = new Permission
+                        {
+                            PermissionId = Guid.NewGuid(),
+                            PermissionName = permName,
+                            Description = $"System generated permission: {permName}"
+                        };
+                        _context.Permissions.Add(permission);
+                    }
+
+                    // 2. Assign to User
+                    var userPerm = new UserPermission
+                    {
+                        UserId = user.UserId,
+                        PermissionId = permission.PermissionId, 
+                        GrantedAt = DateTime.UtcNow
+                    };
+                    _context.UserPermissions.Add(userPerm);
+                }
+            }
+
             await _context.SaveChangesAsync();
 
             // Log registration
