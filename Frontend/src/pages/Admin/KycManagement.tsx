@@ -98,9 +98,9 @@ export default function KycManagement() {
     const filteredDocs = documents.filter(doc => {
         const matchesFilter = filter === "all" || (doc.status?.toLowerCase() || "") === filter;
         const matchesSearch =
-            (doc.documentNumber?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
             (doc.user?.email?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
-            (doc.user?.firstName?.toLowerCase() || "").includes(searchQuery.toLowerCase());
+            (doc.user?.firstName?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+            (doc.docType?.toLowerCase() || "").includes(searchQuery.toLowerCase());
         return matchesFilter && matchesSearch;
     });
 

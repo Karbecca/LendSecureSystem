@@ -174,7 +174,6 @@ export default function Settings() {
                                     value={profile.fullName}
                                     onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
                                     className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 outline-none transition-all"
-                                    style={{ focusRingColor: 'rgba(0, 102, 204, 0.2)', focusBorderColor: '#0066CC' }}
                                     required
                                 />
                             </div>
@@ -192,7 +191,6 @@ export default function Settings() {
                                     value={profile.email}
                                     onChange={(e) => setProfile({ ...profile, email: e.target.value })}
                                     className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 outline-none transition-all"
-                                    style={{ focusRingColor: 'rgba(0, 102, 204, 0.2)', focusBorderColor: '#0066CC' }}
                                     required
                                 />
                             </div>
@@ -210,7 +208,6 @@ export default function Settings() {
                                     value={profile.phoneNumber}
                                     onChange={(e) => setProfile({ ...profile, phoneNumber: e.target.value })}
                                     className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 outline-none transition-all"
-                                    style={{ focusRingColor: 'rgba(0, 102, 204, 0.2)', focusBorderColor: '#0066CC' }}
                                 />
                             </div>
                         </div>
@@ -259,7 +256,6 @@ export default function Settings() {
                                     value={passwords.currentPassword}
                                     onChange={(e) => setPasswords({ ...passwords, currentPassword: e.target.value })}
                                     className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 outline-none transition-all"
-                                    style={{ focusRingColor: 'rgba(0, 102, 204, 0.2)', focusBorderColor: '#0066CC' }}
                                     required
                                 />
                             </div>
@@ -277,7 +273,6 @@ export default function Settings() {
                                     value={passwords.newPassword}
                                     onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })}
                                     className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 outline-none transition-all"
-                                    style={{ focusRingColor: 'rgba(0, 102, 204, 0.2)', focusBorderColor: '#0066CC' }}
                                     required
                                     minLength={6}
                                 />
@@ -297,7 +292,6 @@ export default function Settings() {
                                     value={passwords.confirmPassword}
                                     onChange={(e) => setPasswords({ ...passwords, confirmPassword: e.target.value })}
                                     className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 outline-none transition-all"
-                                    style={{ focusRingColor: 'rgba(0, 102, 204, 0.2)', focusBorderColor: '#0066CC' }}
                                     required
                                 />
                             </div>

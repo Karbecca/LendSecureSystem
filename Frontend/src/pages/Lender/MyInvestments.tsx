@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
     DollarSign,
-    Calendar,
     TrendingUp,
     ArrowRight,
     PiggyBank,
@@ -293,7 +292,7 @@ export default function MyInvestments() {
             <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-slate-800">Investment Portfolio</h2>
                 <div className="flex gap-3">
-                    <ExportButtons 
+                    <ExportButtons
                         onExportCSV={handleExportCSV}
                         onExportPDF={handleExportPDF}
                         disabled={filteredInvestments.length === 0}

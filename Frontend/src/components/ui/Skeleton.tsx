@@ -23,7 +23,7 @@ export function SkeletonStat() {
     )
 }
 
-export function SkeletonTable() {
+export function SkeletonTable({ rows = 5 }: { rows?: number }) {
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
             <div className="p-6 border-b border-slate-100 flex justify-between">
@@ -31,7 +31,7 @@ export function SkeletonTable() {
                 <Skeleton className="h-4 w-24" />
             </div>
             <div className="p-6 space-y-4">
-                {[1, 2, 3, 4, 5].map((i) => (
+                {Array.from({ length: rows }).map((_, i) => (
                     <div key={i} className="flex justify-between items-center">
                         <div className="flex items-center gap-4">
                             <Skeleton className="h-10 w-10 rounded-full" />

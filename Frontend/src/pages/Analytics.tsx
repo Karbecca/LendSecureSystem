@@ -1,15 +1,12 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
 import {
     TrendingUp,
     DollarSign,
     Users,
     FileText,
-    Calendar,
     PieChart,
     BarChart3,
-    ArrowUp,
-    ArrowDown
+    ArrowUp
 } from "lucide-react";
 import { formatCurrency } from "../lib/utils";
 

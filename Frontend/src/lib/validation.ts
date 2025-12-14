@@ -21,6 +21,10 @@ export const VALIDATION = {
             MIN: 1,
             MAX: 30,
             LABEL: "1% - 30%"
+        },
+        PURPOSE: {
+            MIN_LENGTH: 10,
+            MAX_LENGTH: 500
         }
     }
 };

@@ -1,6 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertTriangle, X } from "lucide-react";
-import { Button } from "./Button";
 
 interface ConfirmModalProps {
     isOpen: boolean;

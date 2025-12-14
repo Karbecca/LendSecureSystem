@@ -321,7 +321,7 @@ export default function Wallet() {
             </div>
 
             {/* Add Funds Modal */}
-            <Modal isOpen={isAddFundsOpen} onClose={() => !isProcessing && setIsAddFundsOpen(false)}>
+            <Modal isOpen={isAddFundsOpen} onClose={() => !isProcessing && setIsAddFundsOpen(false)} title="Add Funds to Wallet">
                 <div className="p-6">
                     <div className="flex items-center justify-between mb-6">
                         <h3 className="text-xl font-bold text-slate-800">Add Funds</h3>
@@ -356,7 +356,6 @@ export default function Wallet() {
                                         ? "border-red-300 focus:ring-red-500/20 focus:border-red-500"
                                         : "border-slate-200 focus:border-slate-400"
                                 )}
-                                style={!validationError ? { focusBorderColor: '#0066CC' } : {}}
                             />
                         </div>
                         {validationError ? (

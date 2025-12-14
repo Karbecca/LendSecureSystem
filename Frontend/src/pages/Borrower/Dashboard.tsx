@@ -6,7 +6,6 @@ import {
     ShieldCheck,
     TrendingUp,
     ArrowRight,
-    Loader2,
     CheckCircle2
 } from "lucide-react";
 import { motion } from "framer-motion";

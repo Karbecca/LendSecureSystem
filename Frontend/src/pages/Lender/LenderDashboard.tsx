@@ -6,7 +6,6 @@ import {
     PiggyBank,
     FileSearch,
     ArrowRight,
-    Loader2,
     DollarSign,
     Clock
 } from "lucide-react";

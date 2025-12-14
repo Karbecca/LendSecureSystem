@@ -6,8 +6,7 @@ import {
     ArrowUpRight,
     CheckCircle2,
     Clock,
-    Loader2,
-    ChevronRight
+    Loader2
 } from "lucide-react";
 import api from "../../services/api";
 import { formatCurrency, cn } from "../../lib/utils";

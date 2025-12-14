@@ -5,10 +5,9 @@ import { TypeAnimation } from 'react-type-animation'
 import Tilt from 'react-parallax-tilt'
 import { Navbar } from "../../components/layout/Navbar"
 import { Footer } from "../../components/layout/Footer"
-import { cn } from "../../lib/utils"
 import { Button } from "../../components/ui/Button"
 import { Card, CardContent } from "../../components/ui/Card"
-import { ArrowRight, CheckCircle2, Shield, Zap, TrendingUp, Users, Lock, PieChart } from "lucide-react"
+import { CheckCircle2, Shield, Zap, TrendingUp, Users, Lock, PieChart } from "lucide-react"
 
 export default function Landing() {
     const navigate = useNavigate()
@@ -187,7 +186,7 @@ export default function Landing() {
                     </div>
                 </section>
 
-                <style jsx>{`
+                <style>{`
                     @keyframes marquee {
                         0% {
                             transform: translateX(0);
@@ -296,25 +295,17 @@ export default function Landing() {
                                         <motion.div
                                             className="absolute -top-2 -right-2 h-8 w-8 bg-black text-white rounded-full flex items-center justify-center font-bold text-sm shadow-lg"
                                             initial={{ scale: 0 }}
-                                            whileInView={{ scale: 1 }}
+                                            whileInView={{
+                                                scale: [0, 1, 1.15, 1]
+                                            }}
                                             viewport={{ once: true }}
                                             transition={{
                                                 delay: idx * 0.2 + 0.3,
+                                                duration: 0.8,
+                                                times: [0, 0.4, 0.7, 1],
                                                 type: "spring",
                                                 stiffness: 300,
                                                 damping: 15
-                                            }}
-                                            animate={{
-                                                scale: [1, 1.1, 1],
-                                            }}
-                                            // @ts-ignore
-                                            whileInView={{
-                                                scale: [1, 1.15, 1],
-                                                transition: {
-                                                    delay: idx * 0.2 + 0.5,
-                                                    duration: 0.6,
-                                                    times: [0, 0.5, 1]
-                                                }
                                             }}
                                         >
                                             {step.num}

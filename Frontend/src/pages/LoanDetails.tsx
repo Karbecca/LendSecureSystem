@@ -10,8 +10,7 @@ import {
     Clock,
     CheckCircle2,
     AlertCircle,
-    FileText,
-    Loader2
+    FileText
 } from "lucide-react";
 import api from "../services/api";
 import { formatCurrency, cn } from "../lib/utils";

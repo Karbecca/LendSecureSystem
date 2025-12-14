@@ -257,7 +257,7 @@ export default function RepaymentSchedule() {
                                                 <Button
                                                     onClick={() => handlePayment(repayment.repaymentId, repayment.totalAmount)}
                                                     disabled={!canPay || payingId === repayment.repaymentId}
-                                                    variant={canPay ? "default" : "outline"}
+                                                    variant={canPay ? "primary" : "outline"}
                                                     className="min-w-[100px]"
                                                 >
                                                     {payingId === repayment.repaymentId ? (

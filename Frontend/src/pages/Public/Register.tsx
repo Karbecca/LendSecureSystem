@@ -1,9 +1,8 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Mail, Lock, User, ArrowRight, Loader2, AlertCircle, CheckCircle, ShieldCheck, Phone, Check } from "lucide-react";
+import { Mail, Lock, User, Loader2, AlertCircle, ShieldCheck, Phone, Check } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import api from "../../services/api";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { cn } from "../../lib/utils";

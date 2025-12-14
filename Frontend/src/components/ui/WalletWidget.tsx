@@ -44,11 +44,11 @@ export function WalletWidget() {
     if (isLoading) {
         return (
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-                <Skeleton variant="text" width="40%" className="mb-2 bg-slate-200" />
-                <Skeleton variant="text" width="60%" height={40} className="mb-4 bg-slate-200" />
+                <Skeleton className="mb-2 bg-slate-200 h-4 w-2/5" />
+                <Skeleton className="mb-4 bg-slate-200 h-10 w-3/5" />
                 <div className="space-y-2">
-                    <Skeleton variant="rectangular" height={40} className="bg-slate-200" />
-                    <Skeleton variant="rectangular" height={40} className="bg-slate-200" />
+                    <Skeleton className="bg-slate-200 h-10" />
+                    <Skeleton className="bg-slate-200 h-10" />
                 </div>
             </div>
         );

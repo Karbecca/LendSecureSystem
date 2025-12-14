@@ -82,7 +82,12 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://localhost:3000", "https://lendsecuresystem.onrender.com")
+        policy.WithOrigins(
+                "http://localhost:5173",              // Local React dev
+                "http://localhost:3000",              // Alternative local port
+                "https://*.vercel.app"                // All Vercel deployments (production + previews)
+              )
+              .SetIsOriginAllowedToAllowWildcardSubdomains()  // Enable wildcard subdomain matching
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -183,13 +188,40 @@ app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 
+// ========================================
+// 8. HEALTH CHECK & API INFO ENDPOINTS
+// ========================================
+// Root endpoint - Health check
+app.MapGet("/", () => new 
+{ 
+    message = "LendSecure API is running", 
+    version = "1.0.0", 
+    status = "operational",
+    timestamp = DateTime.UtcNow,
+    endpoints = new 
+    {
+        swagger = "/swagger",
+        api = "/api",
+        health = "/health"
+    }
+}).WithName("HealthCheck").AllowAnonymous();
+
+// Dedicated health endpoint
+app.MapGet("/health", () => Results.Ok(new 
+{ 
+    status = "healthy",
+    timestamp = DateTime.UtcNow
+})).WithName("Health").AllowAnonymous();
+
+// API info endpoint
+app.MapGet("/api", () => Results.Ok(new 
+{ 
+    message = "LendSecure API v1.0",
+    documentation = "/swagger",
+    status = "operational"
+})).WithName("ApiInfo").AllowAnonymous();
+
 // Map Controllers
 app.MapControllers();
-
-// ========================================
-// 8. ROOT ENDPOINT (FIX FOR 404 ERROR)
-// ========================================
-app.MapGet("/", () => new { message = "LendSecure API is running", version = "1.0.0", status = "operational" })
-    .WithName("HealthCheck");
 
 app.Run();
