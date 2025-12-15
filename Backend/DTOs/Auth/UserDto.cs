@@ -8,6 +8,7 @@
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Phone { get; set; }
+        public int CreditScore { get; set; } // Added for frontend display
         public DateTime CreatedAt { get; set; }
     }
 }

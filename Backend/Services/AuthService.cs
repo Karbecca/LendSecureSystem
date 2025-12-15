@@ -195,6 +195,7 @@ namespace LendSecureSystem.Services
                     FirstName = user.Profile?.FirstName ?? string.Empty,
                     LastName = user.Profile?.LastName ?? string.Empty,
                     Phone = user.Profile?.Phone ?? string.Empty,
+                    CreditScore = user.CreditScore, // ADDED: Expose Credit Score
                     CreatedAt = user.CreatedAt ?? DateTime.MinValue
                 }
             };
@@ -225,6 +226,7 @@ namespace LendSecureSystem.Services
                 FirstName = user.Profile?.FirstName ?? string.Empty,
                 LastName = user.Profile?.LastName ?? string.Empty,
                 Phone = user.Profile?.Phone ?? string.Empty,
+                CreditScore = user.CreditScore,  // ADDED: Expose Credit Score
                 CreatedAt = user.CreatedAt ?? DateTime.MinValue
             };
         }

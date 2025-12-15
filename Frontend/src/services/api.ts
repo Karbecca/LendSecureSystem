@@ -85,6 +85,9 @@ const extendedApi = {
     rejectKycDocument: (id: string) => api.put(`/kyc/${id}/reject`).then(res => res.data),
 
     getAuditLogs: (params?: any) => api.get('/admin/audit-logs', { params }).then(res => res.data),
+
+    // User Profile
+    getMyProfile: () => api.get('/auth/me').then(res => res.data),
 };
 
 export default extendedApi;

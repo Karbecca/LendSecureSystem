@@ -13,6 +13,7 @@ import { motion } from "framer-motion";
 import api from "../../services/api";
 import { formatCurrency } from "../../lib/utils";
 import { WalletWidget } from "../../components/ui/WalletWidget";
+import { CreditScoreCard } from "../../components/borrower/CreditScoreCard"; // Import CreditScoreCard
 import { SkeletonStat, SkeletonTable } from "../../components/ui/Skeleton";
 
 // Define simpler Types here for now
@@ -42,22 +43,25 @@ export default function BorrowerDashboard() {
     const [wallet, setWallet] = useState<Wallet | null>(null);
     const [repayments, setRepayments] = useState<Repayment[]>([]);
     const [kycDocs, setKycDocs] = useState<any[]>([]);
+    const [profile, setProfile] = useState<any>(null); // State for profile
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [walletData, loansData, repaymentsData, kycData] = await Promise.all([
+                const [walletData, loansData, repaymentsData, kycData, profileData] = await Promise.all([
                     api.getWallet(),
                     api.getLoans(),
                     api.getMyRepayments(),
-                    api.getMyKycDocuments()
+                    api.getMyKycDocuments(),
+                    api.getMyProfile() // Fetch profile
                 ]);
 
                 setWallet(!!walletData && walletData.data ? walletData.data : walletData);
                 setLoans(Array.isArray(loansData) ? loansData : loansData.data || []);
                 setRepayments(Array.isArray(repaymentsData) ? repaymentsData : repaymentsData.data || []);
                 setKycDocs(Array.isArray(kycData) ? kycData : kycData.data || []);
+                setProfile(profileData.data || profileData); // Set profile
             } catch (error) {
                 console.error("Failed to fetch dashboard data", error);
             } finally {
@@ -324,6 +328,11 @@ export default function BorrowerDashboard() {
 
                 {/* Right Side Widgets */}
                 <div className="space-y-6">
+                    {/* Credit Score Card */}
+                    <motion.div variants={item}>
+                        <CreditScoreCard score={profile?.creditScore || 600} />
+                    </motion.div>
+
                     {/* Wallet Widget */}
                     <motion.div variants={item}>
                         <WalletWidget />
