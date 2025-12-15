@@ -29,6 +29,9 @@ namespace LendSecureSystem.Models
         [Column("role")]
         public string Role { get; set; }
 
+        [Column("credit_score")]
+        public int CreditScore { get; set; } = 600;
+
         [Column("mfa_enabled")]
         public bool? MfaEnabled { get; set; } = false;
 

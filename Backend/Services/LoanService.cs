@@ -20,6 +20,11 @@ namespace LendSecureSystem.Services
 
         public async Task<LoanResponseDto> CreateLoanRequestAsync(Guid borrowerId, CreateLoanRequestDto request)
         {
+            // Check Credit Score
+            var user = await _context.Users.FindAsync(borrowerId);
+            if (user.CreditScore < 500)
+                throw new Exception("Credit Score too low. Improve your score to borrow.");
+
             // Check for overdue payments
             var hasOverduePayments = await _context.Repayments
                 .Include(r => r.Loan)
@@ -158,7 +163,8 @@ namespace LendSecureSystem.Services
                 Status = loan.Status,
                 CreatedAt = loan.CreatedAt,
                 ApprovedAt = loan.ApprovedAt,
-                TotalFunded = totalFunded
+                TotalFunded = totalFunded,
+                BorrowerCreditScore = loan.Borrower?.CreditScore ?? 0
             };
         }
 
