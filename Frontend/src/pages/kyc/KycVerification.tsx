@@ -8,7 +8,7 @@ import {
     Clock,
     Loader2,
     AlertTriangle,
-    Camera,
+
     ScanFace,
     AlertCircle
 } from "lucide-react";
@@ -41,7 +41,7 @@ export default function KycVerification() {
 
     // Face Descriptors
     const [idCardDescriptor, setIdCardDescriptor] = useState<Float32Array | null>(null);
-    const [webcamDescriptor, setWebcamDescriptor] = useState<Float32Array | null>(null);
+
     const [pendingIdFile, setPendingIdFile] = useState<File | null>(null); // Store ID until selfie match
 
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -129,7 +129,6 @@ export default function KycVerification() {
     const startCamera = async () => {
         setIsAiModalOpen(true);
         setAiStatus("Initializing");
-        setWebcamDescriptor(null);
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
             if (videoRef.current) {
