@@ -226,6 +226,24 @@ namespace LendSecureSystem.Services
             repayment.Status = "Paid";
             repayment.PaidAt = DateTime.UtcNow;
 
+            // Update repayment status
+            repayment.Status = "Paid";
+            repayment.PaidAt = DateTime.UtcNow;
+
+            // Update Credit Score
+            var borrower = await _context.Users.FindAsync(borrowerId);
+            if (borrower != null) 
+            {
+                if (DateTime.UtcNow <= repayment.ScheduledDate)
+                {
+                     borrower.CreditScore += 10;
+                }
+                else
+                {
+                     borrower.CreditScore -= 20;
+                }
+            }
+
             await _context.SaveChangesAsync();
 
             return new RepaymentResponseDto

@@ -16,5 +16,6 @@ namespace LendSecureSystem.DTOs.Loans
         public DateTime CreatedAt { get; set; }
         public DateTime? ApprovedAt { get; set; }
         public decimal TotalFunded { get; set; } // Amount funded so far
+        public int BorrowerCreditScore { get; set; } // Added for Trust Engine
     }
 }
