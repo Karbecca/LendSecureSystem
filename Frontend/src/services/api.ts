@@ -1,10 +1,11 @@
 import axios from 'axios';
 
-// Create a configured axios instance
-// We use a relative URL assuming we might use a proxy, 
-// OR you can hardcode 'https://localhost:7216/api' if you don't set up a proxy.
-// For now, let's target the likely backend port directly or use an environment variable.
-const API_URL = 'http://localhost:5057/api'; // Updated to match your running backend
+// API Configuration
+// For local dev: uses localhost
+// For production (Vercel): uses VITE_API_URL env var pointing to Render backend
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5057/api';
+
+console.log('[API Config] Using API URL:', API_URL);
 
 export const api = axios.create({
     baseURL: API_URL,
