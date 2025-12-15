@@ -51,44 +51,33 @@ namespace LendSecureSystem.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllDocuments()
         {
+            // READ-ONLY: Admin can view KYC status but CANNOT approve/reject
+            // Professor requirement: AI-only verification
             var result = await _kycService.GetAllDocumentsAsync();
             return Ok(result);
         }
 
+        // REMOVED: Admin approval endpoints disabled per professor's requirements
+        // KYC verification is AI-only through face-api.js client-side detection
+        // If AI verifies (IsVerified=true), status = Approved automatically
+        // No manual admin intervention allowed
+
+        /*
         [HttpPut("{id}/approve")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ApproveDocument(Guid id)
         {
-            try
-            {
-                var reviewerIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-                if (reviewerIdClaim == null) return Unauthorized(new { message = "Reviewer ID not found in token." });
-                var reviewerId = Guid.Parse(reviewerIdClaim.Value);
-                var result = await _kycService.ReviewDocumentAsync(id, reviewerId, "Approved");
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            // DISABLED: Professor requires AI-only KYC verification
+            return StatusCode(403, new { message = "Admin KYC approval is disabled. System uses AI-only verification." });
         }
 
         [HttpPut("{id}/reject")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> RejectDocument(Guid id)
         {
-            try
-            {
-                var reviewerIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-                if (reviewerIdClaim == null) return Unauthorized(new { message = "Reviewer ID not found in token." });
-                var reviewerId = Guid.Parse(reviewerIdClaim.Value);
-                var result = await _kycService.ReviewDocumentAsync(id, reviewerId, "Rejected");
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            // DISABLED: Professor requires AI-only KYC verification
+            return StatusCode(403, new { message = "Admin KYC rejection is disabled. System uses AI-only verification." });
         }
+        */
     }
 }

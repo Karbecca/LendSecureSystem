@@ -23,7 +23,7 @@ export default function AdminLayout() {
     const navigate = useNavigate();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
-    const [notifications, setNotifications] = useState({ kyc: 0, loans: 0 });
+    const [notifications, setNotifications] = useState({ loans: 0 });
 
     useEffect(() => {
         const fetchNotifications = async () => {
@@ -31,7 +31,6 @@ export default function AdminLayout() {
                 const response = await api.getAdminDashboardStats();
                 if (response.success) {
                     setNotifications({
-                        kyc: response.data.pendingKYCs || 0,
                         loans: response.data.pendingLoans || 0
                     });
                 }
@@ -55,7 +54,8 @@ export default function AdminLayout() {
         { name: "Admin Dashboard", href: "/admin", icon: LayoutDashboard },
         { name: "User Management", href: "/admin/users", icon: Users },
         { name: "Loan Management", href: "/admin/loans", icon: FileText },
-        { name: "KYC Verification", href: "/admin/kyc", icon: ShieldCheck },
+        // REMOVED: { name: "KYC Verification", href: "/admin/kyc", icon: ShieldCheck },
+        // Professor requirement: KYC is AI-only with complete user privacy
         { name: "Audit Logs", href: "/admin/audit", icon: ShieldCheck },
         { name: "Settings", href: "/admin/settings", icon: Settings },
     ];
@@ -179,7 +179,7 @@ export default function AdminLayout() {
                                 className="relative p-2 text-slate-500 hover:bg-surface-muted rounded-full transition-colors"
                             >
                                 <Bell className="h-5 w-5" />
-                                {(notifications.kyc > 0 || notifications.loans > 0) && (
+                                {notifications.loans > 0 && (
                                     <span className="absolute top-2 right-2 h-2 w-2 bg-red-500 rounded-full border border-white animate-pulse"></span>
                                 )}
                             </button>
@@ -192,27 +192,12 @@ export default function AdminLayout() {
                                             <h3 className="font-semibold text-gray-900">Notifications</h3>
                                         </div>
                                         <div className="max-h-[300px] overflow-y-auto">
-                                            {notifications.kyc === 0 && notifications.loans === 0 ? (
+                                            {notifications.loans === 0 ? (
                                                 <div className="p-4 text-center text-gray-500 text-sm">
                                                     No new notifications
                                                 </div>
                                             ) : (
                                                 <div className="py-2">
-                                                    {notifications.kyc > 0 && (
-                                                        <Link
-                                                            to="/admin/kyc"
-                                                            onClick={() => setShowNotifications(false)}
-                                                            className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
-                                                        >
-                                                            <div className="mt-1 bg-yellow-100 p-1.5 rounded-full">
-                                                                <ShieldCheck className="h-4 w-4 text-yellow-600" />
-                                                            </div>
-                                                            <div>
-                                                                <p className="text-sm font-medium text-gray-900">Pending KYC Requests</p>
-                                                                <p className="text-xs text-gray-500 mt-0.5">{notifications.kyc} documents require review</p>
-                                                            </div>
-                                                        </Link>
-                                                    )}
                                                     {notifications.loans > 0 && (
                                                         <Link
                                                             to="/admin/loans"
