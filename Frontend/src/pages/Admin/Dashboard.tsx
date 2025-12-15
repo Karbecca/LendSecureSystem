@@ -58,21 +58,21 @@ export default function AdminDashboard() {
         {
             title: "Total Users",
             value: stats?.totalUsers || 0,
-            subtext: `${stats?.totalBorrowers} Borrowers, ${stats?.totalLenders} Lenders`,
+            subtext: `${stats?.totalBorrowers || 0} Borrowers, ${stats?.totalLenders || 0} Lenders`,
             icon: Users,
             color: "bg-blue-500"
         },
         {
             title: "Total Loans",
             value: stats?.totalLoans || 0,
-            subtext: `${stats?.pendingLoans} Pending Approval`,
+            subtext: `${stats?.pendingLoans || 0} Pending Approval`,
             icon: CreditCard,
             color: "bg-purple-500"
         },
         {
             title: "Funded Amount",
             value: formatCurrency(stats?.totalFundedAmount || 0),
-            subtext: `${stats?.fundedLoans} Loans Funded`,
+            subtext: `${stats?.fundedLoans || 0} Loans Funded`,
             icon: Wallet,
             color: "bg-green-500"
         },

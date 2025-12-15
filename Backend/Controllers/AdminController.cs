@@ -160,5 +160,48 @@ namespace LendSecureSystem.Controllers
                 });
             }
         }
+
+        /// <summary>
+        /// Get all users (Admin only)
+        /// </summary>
+        [Authorize(Policy = "ManageUsersPermission")]
+        [HttpGet("users")]
+        public async Task<IActionResult> GetUsers()
+        {
+            try
+            {
+                var users = await _context.Users
+                    .Include(u => u.Profile)
+                    .Select(u => new 
+                    {
+                        UserId = u.UserId,
+                        Email = u.Email,
+                        Role = u.Role,
+                        Profile = u.Profile != null ? new 
+                        {
+                            FirstName = u.Profile.FirstName,
+                            LastName = u.Profile.LastName,
+                            Phone = u.Profile.Phone
+                        } : null,
+                        CreatedAt = u.CreatedAt
+                    })
+                    .OrderByDescending(u => u.CreatedAt)
+                    .ToListAsync();
+
+                return Ok(new
+                {
+                    success = true,
+                    data = users
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+        }
     }
 }

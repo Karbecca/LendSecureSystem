@@ -9,7 +9,8 @@ import {
     Loader2,
     AlertTriangle,
     Camera,
-    ScanFace
+    ScanFace,
+    AlertCircle
 } from "lucide-react";
 import * as faceapi from 'face-api.js';
 import api from "../../services/api";
@@ -35,13 +36,20 @@ export default function KycVerification() {
     const [isAiModalOpen, setIsAiModalOpen] = useState(false);
     const [isModelsLoaded, setIsModelsLoaded] = useState(false);
     const [isScanning, setIsScanning] = useState(false);
-    const [aiStatus, setAiStatus] = useState<"Initializing" | "Scanning" | "Verified">("Initializing");
+    const [aiStatus, setAiStatus] = useState<"Initializing" | "Scanning" | "Verifying" | "Verified" | "Failed">("Initializing");
+    const [scanMessage, setScanMessage] = useState("Position your face in the center");
+
+    // Face Descriptors
+    const [idCardDescriptor, setIdCardDescriptor] = useState<Float32Array | null>(null);
+    const [webcamDescriptor, setWebcamDescriptor] = useState<Float32Array | null>(null);
+    const [pendingIdFile, setPendingIdFile] = useState<File | null>(null); // Store ID until selfie match
+
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const streamRef = useRef<MediaStream | null>(null);
 
     const requiredDocs = [
-        { type: "IdentityCard", label: "National ID / Passport", description: "Government issued ID with clear photo." },
+        { type: "IdentityCard", label: "National ID / Passport", description: "Government issued ID. Must contain a clear photo." },
         { type: "ProofOfAddress", label: "Proof of Address", description: "Utility bill or bank statement (max 3 months old)." },
         { type: "IncomeStatement", label: "Income Statement", description: "Recent payslip or bank statement showing income." }
     ];
@@ -62,9 +70,10 @@ export default function KycVerification() {
                 faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL)
             ]);
             setIsModelsLoaded(true);
+            console.log("AI Models Loaded");
         } catch (err) {
             console.error("Failed to load AI models", err);
-            setError("Failed to load AI Face Detection models.");
+            setError("Failed to load AI Face Detection models. Refresh page.");
         }
     };
 
@@ -80,9 +89,47 @@ export default function KycVerification() {
         }
     };
 
+    // --- STEP 1: Process ID Card Image ---
+    const handleIdCardSelected = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        if (!isModelsLoaded) {
+            setError("AI Models not ready. Please wait a moment.");
+            return;
+        }
+
+        setError(null);
+        setScanMessage("Analyzing ID Card photo...");
+        setPendingIdFile(file);
+
+        try {
+            // Convert File to HTMLImageElement for face-api
+            const img = await faceapi.bufferToImage(file);
+
+            // Detect Face in ID
+            const detection = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
+
+            if (!detection) {
+                setError("No face detected in the ID card photo. Please upload a clearer image.");
+                setPendingIdFile(null);
+                return;
+            }
+
+            // Success: Store Descriptor & Prompt for Selfie
+            setIdCardDescriptor(detection.descriptor);
+            startCamera(); // Launch Camera immediately for Comparison
+        } catch (err) {
+            console.error(err);
+            setError("Failed to analyze ID card image.");
+            setPendingIdFile(null);
+        }
+    };
+
     const startCamera = async () => {
         setIsAiModalOpen(true);
         setAiStatus("Initializing");
+        setWebcamDescriptor(null);
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
             if (videoRef.current) {
@@ -109,82 +156,96 @@ export default function KycVerification() {
         setIsScanning(true);
 
         const interval = setInterval(async () => {
-            if (!videoRef.current || !canvasRef.current || !isScanning) return;
+            if (!videoRef.current || !canvasRef.current || !isScanning || !idCardDescriptor) return;
 
-            // Detection logic
-            const detections = await faceapi.detectAllFaces(videoRef.current, new faceapi.TinyFaceDetectorOptions())
-                .withFaceLandmarks();
+            // Detect Face in Webcam
+            const detection = await faceapi.detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions())
+                .withFaceLandmarks()
+                .withFaceDescriptor();
 
-            // Draw on canvas
+            // Draw on canvas for feedback
             const displaySize = { width: videoRef.current.videoWidth, height: videoRef.current.videoHeight };
             faceapi.matchDimensions(canvasRef.current, displaySize);
-            const resizedDetections = faceapi.resizeResults(detections, displaySize);
 
-            const ctx = canvasRef.current.getContext('2d');
-            if (ctx) {
-                ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-                faceapi.draw.drawDetections(canvasRef.current, resizedDetections);
-            }
+            if (detection) {
+                const resizedDetections = faceapi.resizeResults(detection, displaySize);
+                const ctx = canvasRef.current.getContext('2d');
+                if (ctx) {
+                    ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+                    faceapi.draw.drawDetections(canvasRef.current, resizedDetections);
+                }
 
-            // Check correctness
-            if (detections.length > 0) {
-                const detection = detections[0];
-                if (detection.detection.score > 0.8) {
-                    // Success!
+                // --- CORE LOGIC: EUCLIDEAN DISTANCE MATCH ---
+                const distance = faceapi.euclideanDistance(idCardDescriptor, detection.descriptor);
+                console.log("Face Match Distance:", distance); // Debugging
+
+                if (distance < 0.6) { // Threshold: < 0.6 is a match
                     clearInterval(interval);
                     setAiStatus("Verified");
-                    await captureAndUpload();
+                    setScanMessage(`Identity Verified! Match Score: ${((1 - distance) * 100).toFixed(0)}%`);
+
+                    // Proceed to Upload
+                    await uploadVerifiedDoc();
+                } else {
+                    setScanMessage("Face does not match ID card. Try again.");
                 }
+            } else {
+                setScanMessage("No face visible. Look at camera.");
+                const ctx = canvasRef.current.getContext('2d');
+                ctx?.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
             }
+
         }, 500);
 
         // Safety timeout
-        setTimeout(() => clearInterval(interval), 30000);
+        setTimeout(() => {
+            if (isScanning) {
+                clearInterval(interval);
+                if (aiStatus !== "Verified") {
+                    setAiStatus("Failed");
+                    setScanMessage("Verification Timeout. Face did not match.");
+                    setIsScanning(false);
+                }
+            }
+        }, 30000);
     };
 
-    const captureAndUpload = async () => {
-        if (!videoRef.current) return;
+    const uploadVerifiedDoc = async () => {
+        if (!pendingIdFile) return;
 
-        // Capture image
-        const canvas = document.createElement('canvas');
-        canvas.width = videoRef.current.videoWidth;
-        canvas.height = videoRef.current.videoHeight;
-        canvas.getContext('2d')?.drawImage(videoRef.current, 0, 0);
+        setUploading(true);
+        // Create FormData
+        const formData = new FormData();
+        formData.append("file", pendingIdFile);
+        formData.append("docType", "IdentityCard");
+        formData.append("isVerified", "true"); // Proven by Euclidean Match
 
-        // Convert to blob
-        canvas.toBlob(async (blob) => {
-            if (!blob) return;
-            const file = new File([blob], "face_verification.jpg", { type: "image/jpeg" });
+        try {
+            await api.uploadKycDocument(formData);
 
-            // Upload
-            setUploading(true);
-            const formData = new FormData();
-            formData.append("file", file);
-            formData.append("docType", "IdentityCard");
-            formData.append("isVerified", "true"); // Signal Backend!
-
-            try {
-                await api.uploadKycDocument(formData);
+            // Add slight delay for UX
+            setTimeout(() => {
                 stopCamera();
                 setIsAiModalOpen(false);
+                setPendingIdFile(null);
+                setIdCardDescriptor(null);
                 fetchDocuments();
-            } catch (err) {
-                console.error(err);
-                setError("Verification capture failed.");
-            } finally {
-                setUploading(false);
-            }
-        }, 'image/jpeg');
+            }, 1500);
+
+        } catch (err) {
+            console.error(err);
+            setError("Verification passed, but upload failed.");
+        } finally {
+            setUploading(false);
+        }
     };
 
-    // Standard upload fallback
-    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, docType: string) => {
+    // Standard upload for non-ID docs
+    const handleStandardUpload = async (event: React.ChangeEvent<HTMLInputElement>, docType: string) => {
         const file = event.target.files?.[0];
         if (!file) return;
 
         setUploading(true);
-        setError(null);
-
         const formData = new FormData();
         formData.append("file", file);
         formData.append("docType", docType);
@@ -193,7 +254,6 @@ export default function KycVerification() {
             await api.uploadKycDocument(formData);
             await fetchDocuments();
         } catch (err: any) {
-            console.error("Upload failed", err);
             setError(err.response?.data?.message || "Failed to upload document.");
         } finally {
             setUploading(false);
@@ -255,6 +315,12 @@ export default function KycVerification() {
                 </div>
             )}
 
+            {!isModelsLoaded && (
+                <div className="bg-blue-50 text-blue-600 p-3 rounded-lg flex items-center text-sm">
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" /> Initializing AI Neural Networks...
+                </div>
+            )}
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {requiredDocs.map((doc) => {
                     const status = getDocStatus(doc.type);
@@ -274,7 +340,7 @@ export default function KycVerification() {
                                         <p className="text-xs text-slate-500 mt-1 max-w-[200px]">{doc.description}</p>
                                     </div>
                                 </div>
-                                {status ? (
+                                {status && (
                                     <span className={cn(
                                         "px-2.5 py-1 rounded-full text-xs font-bold border",
                                         status.status === 'Approved' ? "bg-emerald-50 border-emerald-100 text-emerald-700" :
@@ -283,53 +349,39 @@ export default function KycVerification() {
                                     )}>
                                         {status.status}
                                     </span>
-                                ) : (
-                                    <span className="bg-slate-100 text-slate-500 px-2.5 py-1 rounded-full text-xs font-bold">
-                                        Not Uploaded
-                                    </span>
                                 )}
                             </div>
 
-                            {status?.status === 'Rejected' && (
-                                <div className="bg-red-50 p-3 rounded-lg text-xs text-red-600 mb-4 flex items-start gap-2">
-                                    <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                                    Reason: Document rejected. Please re-upload clearer copy.
-                                </div>
-                            )}
-
                             {(!status || status.status === 'Rejected' || status.status === 'Pending') && (
                                 <div className="mt-4">
-                                    {/* Smart Action Button */}
-                                    {doc.type === "IdentityCard" ? (
-                                        <Button
-                                            onClick={startCamera}
-                                            disabled={!isModelsLoaded}
-                                            className="w-full flex gap-2"
-                                        >
-                                            {isModelsLoaded ? <Camera className="h-4 w-4" /> : <Loader2 className="h-4 w-4 animate-spin" />}
-                                            {isModelsLoaded ? "Verify with Face ID" : "Loading AI..."}
-                                        </Button>
-                                    ) : (
-                                        <>
-                                            <input
-                                                type="file"
-                                                id={`upload-${doc.type}`}
-                                                className="hidden"
-                                                accept="image/*,.pdf"
-                                                onChange={(e) => handleFileUpload(e, doc.type)}
-                                                disabled={uploading}
-                                            />
-                                            <label
-                                                htmlFor={`upload-${doc.type}`}
-                                                className={cn(
-                                                    "w-full flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-dashed border-slate-200 font-bold text-sm cursor-pointer transition-all hover:bg-slate-50 hover:border-slate-300 hover:text-[#0066CC]",
-                                                    uploading && "opacity-50 cursor-not-allowed"
-                                                )}
-                                            >
-                                                {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                                                {status ? "Re-upload Document" : "Upload Document"}
-                                            </label>
-                                        </>
+                                    <input
+                                        type="file"
+                                        id={`upload-${doc.type}`}
+                                        className="hidden"
+                                        accept="image/*" // Restrict to images for AI
+                                        onChange={(e) => {
+                                            if (doc.type === "IdentityCard") handleIdCardSelected(e);
+                                            else handleStandardUpload(e, doc.type);
+                                        }}
+                                        disabled={uploading || (!isModelsLoaded && doc.type === "IdentityCard")}
+                                    />
+                                    <label
+                                        htmlFor={`upload-${doc.type}`}
+                                        className={cn(
+                                            "w-full flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-dashed border-slate-200 font-bold text-sm cursor-pointer transition-all hover:bg-slate-50 hover:border-slate-300 hover:text-[#0066CC]",
+                                            (uploading || (!isModelsLoaded && doc.type === "IdentityCard")) && "opacity-50 cursor-not-allowed"
+                                        )}
+                                    >
+                                        {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> :
+                                            doc.type === "IdentityCard" ? <ScanFace className="h-4 w-4" /> : <Upload className="h-4 w-4" />}
+
+                                        {doc.type === "IdentityCard" ? "Verify with Face ID (AI)" : "Upload Document"}
+                                    </label>
+
+                                    {doc.type === "IdentityCard" && (
+                                        <p className="text-[10px] text-slate-400 text-center mt-2">
+                                            AI will compare photo ID with live selfie.
+                                        </p>
                                     )}
                                 </div>
                             )}
@@ -345,7 +397,7 @@ export default function KycVerification() {
             </div>
 
             {/* AI Verification Modal */}
-            <Modal isOpen={isAiModalOpen} onClose={() => { stopCamera(); setIsAiModalOpen(false); }} title="Identity Verification">
+            <Modal isOpen={isAiModalOpen} onClose={() => { stopCamera(); setIsAiModalOpen(false); }} title="Identity Match Verification">
                 <div className="p-6 text-center">
                     <div className="relative w-full h-[400px] bg-black rounded-2xl overflow-hidden mb-4 border-4 border-slate-100">
                         <video
@@ -357,25 +409,41 @@ export default function KycVerification() {
                         />
                         <canvas ref={canvasRef} className="absolute top-0 left-0 w-full h-full" />
 
-                        {aiStatus === "Initializing" && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-white font-bold">
-                                <Loader2 className="h-8 w-8 animate-spin mr-2" /> Starting Camera...
+                        <div className="absolute top-4 left-0 right-0 flex justify-center">
+                            <div className="bg-black/60 backdrop-blur-md px-4 py-2 rounded-full text-white text-sm font-bold flex items-center gap-2">
+                                {aiStatus === "Initializing" && <Loader2 className="h-4 w-4 animate-spin" />}
+                                {aiStatus === "Verified" && <CheckCircle2 className="h-4 w-4 text-emerald-400" />}
+                                {aiStatus === "Failed" && <AlertCircle className="h-4 w-4 text-red-400" />}
+                                {scanMessage}
                             </div>
-                        )}
-                        {aiStatus === "Scanning" && (
-                            <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/50 px-4 py-1 rounded-full text-white text-sm font-bold animate-pulse">
-                                Positioning Face...
-                            </div>
-                        )}
+                        </div>
+
                         {aiStatus === "Verified" && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-emerald-500/80 text-white font-bold text-xl">
-                                <CheckCircle2 className="h-10 w-10 mr-2" /> Identity Verified!
+                            <div className="absolute inset-0 flex items-center justify-center bg-emerald-500/90 text-white font-bold text-xl backdrop-blur-sm animate-in fade-in zoom-in duration-300">
+                                <div className="text-center">
+                                    <CheckCircle2 className="h-16 w-16 mx-auto mb-4" />
+                                    Identity Verified!
+                                    <p className="text-sm font-normal opacity-80 mt-2">Uploading Secure Document...</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {aiStatus === "Failed" && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-red-500/90 text-white font-bold text-xl backdrop-blur-sm">
+                                <div className="text-center">
+                                    <XCircle className="h-16 w-16 mx-auto mb-4" />
+                                    Verification Failed
+                                    <p className="text-sm font-normal opacity-80 mt-2">Face did not match ID card.</p>
+                                    <Button onClick={() => { setIsAiModalOpen(false); setScanMessage(""); }} className="mt-4 bg-white text-red-600 hover:bg-white/90">
+                                        Try Again
+                                    </Button>
+                                </div>
                             </div>
                         )}
                     </div>
 
-                    <p className="text-sm text-slate-500">
-                        Please look directly at the camera. Our AI is verifying your identity against global security databases.
+                    <p className="text-sm text-slate-500 max-w-sm mx-auto">
+                        We are comparing your live face with the photo in your ID card using <span className="font-bold text-slate-700">Euclidean Distance Analysis</span> (Threshold &lt; 0.6).
                     </p>
                 </div>
             </Modal>

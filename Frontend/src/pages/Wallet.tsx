@@ -96,10 +96,23 @@ export default function Wallet() {
     const handleInitiate = async () => {
         if (!amount || !selectedProvider || !accountParams.number) return;
 
-        // Simulating getting email from logged in user or form
-        // For this demo, let's prompt or assume it's attached to the account
-        // We really need the email for the "Real Email" feature 1.
-        // Let's add an Email input to the form.
+        // Frontend Regex Validation
+        const phoneRegex = /^07[2389]\d{7}$/; // Rwandese Phone: 078, 073, 072, 079 + 7 digits
+        const cardRegex = /^\d{16}$/; // Visa/Mastercard: 16 digits
+
+        if (['Momo', 'Airtel'].includes(selectedProvider)) {
+            if (!phoneRegex.test(accountParams.number)) {
+                setError("Invalid Phone Number. Must exist start with 07 and be 10 digits.");
+                return;
+            }
+        } else if (['Visa', 'Equity', 'BK'].includes(selectedProvider)) {
+            // Treat Equity/BK as accounts or cards for simplicity in demo
+            // If strictly card:
+            if (!cardRegex.test(accountParams.number)) {
+                setError("Invalid Account/Card Number. Must be 16 digits.");
+                return;
+            }
+        }
 
         try {
             setIsProcessing(true);
@@ -110,11 +123,11 @@ export default function Wallet() {
                 amount: parseFloat(amount),
                 provider: selectedProvider,
                 accountNumber: accountParams.number,
-                email: accountParams.email // We need to add this input!
+                email: accountParams.email
             });
 
             setCurrentTxnId(res.txnId);
-            setDemoOtp(res.developmentOtp); // Ideally hide this in prod, but show for demo "just in case"
+            setDemoOtp(res.developmentOtp);
             setTxnStep('OTP');
         } catch (err: any) {
             setError(err.response?.data?.message || "Failed to initiate transaction");
@@ -431,6 +444,17 @@ export default function Wallet() {
                                     onChange={e => setAmount(e.target.value)}
                                     className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#0066CC] outline-none"
                                     placeholder="5000"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Email (For OTP)</label>
+                                <input
+                                    type="email"
+                                    value={accountParams.email}
+                                    onChange={e => setAccountParams({ ...accountParams, email: e.target.value })}
+                                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#0066CC] outline-none"
+                                    placeholder="you@example.com"
                                 />
                             </div>
 

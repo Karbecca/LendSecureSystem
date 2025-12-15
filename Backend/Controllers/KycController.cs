@@ -47,36 +47,30 @@ namespace LendSecureSystem.Controllers
             return Ok(result);
         }
 
+        // REMOVED: Admin KYC viewing disabled for PRIVACY
+        // Professor requirement: KYC is AI-only verification with complete user privacy
+        // Admins have NO ACCESS to KYC documents
+        
+        /*
         [HttpGet("documents")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllDocuments()
         {
-            // READ-ONLY: Admin can view KYC status but CANNOT approve/reject
-            // Professor requirement: AI-only verification
-            var result = await _kycService.GetAllDocumentsAsync();
-            return Ok(result);
+            return StatusCode(403, new { message = "Admin access to KYC documents disabled for privacy." });
         }
 
-        // REMOVED: Admin approval endpoints disabled per professor's requirements
-        // KYC verification is AI-only through face-api.js client-side detection
-        // If AI verifies (IsVerified=true), status = Approved automatically
-        // No manual admin intervention allowed
-
-        /*
         [HttpPut("{id}/approve")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ApproveDocument(Guid id)
         {
-            // DISABLED: Professor requires AI-only KYC verification
-            return StatusCode(403, new { message = "Admin KYC approval is disabled. System uses AI-only verification." });
+            return StatusCode(403, new { message = "Admin KYC approval disabled. System uses AI-only verification." });
         }
 
         [HttpPut("{id}/reject")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> RejectDocument(Guid id)
         {
-            // DISABLED: Professor requires AI-only KYC verification
-            return StatusCode(403, new { message = "Admin KYC rejection is disabled. System uses AI-only verification." });
+            return StatusCode(403, new { message = "Admin KYC rejection disabled. System uses AI-only verification." });
         }
         */
     }
