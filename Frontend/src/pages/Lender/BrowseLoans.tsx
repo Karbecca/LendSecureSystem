@@ -8,7 +8,8 @@ import {
     User,
     ArrowRight,
     X,
-    CheckCircle2
+    CheckCircle2,
+    TrendingUp // Added for Credit Score Badge
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -27,6 +28,7 @@ interface Loan {
     status: string;
     createdAt: string;
     totalFunded?: number; // For showing remaining amount
+    borrowerCreditScore: number; // Added for Trust Badge
 }
 
 export default function BrowseLoans() {
@@ -198,6 +200,25 @@ export default function BrowseLoans() {
                                     <Percent className="h-4 w-4 text-slate-400" />
                                     <span>{loan.interestRate}% interest rate</span>
                                 </div>
+                            </div>
+
+                            {/* Credit Score Badge */}
+                            <div className="flex items-center gap-2 mb-4 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                <TrendingUp className={`h-4 w-4 ${loan.borrowerCreditScore >= 700 ? "text-emerald-500" :
+                                        loan.borrowerCreditScore >= 600 ? "text-blue-500" :
+                                            loan.borrowerCreditScore >= 500 ? "text-amber-500" : "text-red-500"
+                                    }`} />
+                                <span className="text-xs font-semibold text-slate-600">Credit Score:</span>
+                                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${loan.borrowerCreditScore >= 700 ? "bg-emerald-100 text-emerald-700" :
+                                        loan.borrowerCreditScore >= 600 ? "bg-blue-100 text-blue-700" :
+                                            loan.borrowerCreditScore >= 500 ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"
+                                    }`}>
+                                    {loan.borrowerCreditScore} - {
+                                        loan.borrowerCreditScore >= 700 ? "Excellent" :
+                                            loan.borrowerCreditScore >= 600 ? "Good" :
+                                                loan.borrowerCreditScore >= 500 ? "Fair" : "Poor"
+                                    }
+                                </span>
                             </div>
 
                             <button
