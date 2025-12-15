@@ -12,10 +12,30 @@ using LendSecureSystem.Middleware;
 var builder = WebApplication.CreateBuilder(args);
 
 // ========================================
-// 1. DATABASE CONFIGURATION
+// 1. DATABASE CONFIGURATION (Hybrid Mode)
 // ========================================
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Checks for "Render" environment variable to detect Hosting
+var isProduction = Environment.GetEnvironmentVariable("RENDER") == "true";
+
+if (isProduction)
+{
+    // PROD: Use PostgreSQL (Render)
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseNpgsql(connectionString));
+    Console.WriteLine($"[Config] Using PostgreSQL Database (Production Mode)");
+}
+else
+{
+    // DEV: Use SQL Server (Local Team)
+    // Fallback to "LocalConnection" or "DefaultConnection" if LocalConnection missing
+    var localConn = builder.Configuration.GetConnectionString("LocalConnection") 
+                    ?? "Server=localhost;Database=LendSecureDb;Trusted_Connection=True;TrustServerCertificate=True;";
+    
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlServer(localConn));
+    Console.WriteLine($"[Config] Using SQL Server Database (Local Mode)");
+}
 
 // ========================================
 // 2. JWT AUTHENTICATION CONFIGURATION
@@ -107,6 +127,7 @@ builder.Services.AddScoped<ILoanService, LoanService>();
 builder.Services.AddScoped<IWalletService, WalletService>();
 builder.Services.AddScoped<IRepaymentService, RepaymentService>();
 builder.Services.AddScoped<IFundingService, FundingService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 // ========================================
 // 5. CONTROLLERS

@@ -93,5 +93,42 @@ namespace LendSecureSystem.Services
                 UpdatedAt = wallet.UpdatedAt
             };
         }
+
+        public async Task<WalletResponseDto> WithdrawFundsAsync(Guid userId, decimal amount)
+        {
+            var wallet = await _context.Wallets
+                .FirstOrDefaultAsync(w => w.UserId == userId);
+
+            if (wallet == null)
+                throw new Exception("Wallet not found.");
+
+            if (wallet.Balance < amount)
+                throw new Exception("Insufficient funds.");
+
+            wallet.Balance -= amount;
+            wallet.UpdatedAt = DateTime.UtcNow;
+
+            // Create transaction record
+            var transaction = new WalletTransaction
+            {
+                TxnId = Guid.NewGuid(),
+                WalletId = wallet.WalletId,
+                TxnType = "Debit",
+                Amount = amount,
+                Currency = wallet.Currency,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.WalletTransactions.Add(transaction);
+            await _context.SaveChangesAsync();
+
+            return new WalletResponseDto
+            {
+                WalletId = wallet.WalletId,
+                Balance = wallet.Balance,
+                Currency = wallet.Currency,
+                UpdatedAt = wallet.UpdatedAt
+            };
+        }
     }
 }

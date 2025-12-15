@@ -52,6 +52,8 @@ const extendedApi = {
     getWallet: () => api.get('/wallet').then(res => res.data),
     getWalletTransactions: () => api.get('/wallet/transactions').then(res => res.data),
     addFunds: (amount: number) => api.post('/wallet/add-funds', { amount }).then(res => res.data),
+    initiateTransaction: (data: any) => api.post('/wallet/initiate', data).then(res => res.data),
+    confirmTransaction: (data: any) => api.post('/wallet/confirm', data).then(res => res.data),
     getLoans: () => api.get('/loans').then(res => res.data),
     getLoanRepayments: (loanId: string) => api.get(`/repayments/loan/${loanId}`).then(res => res.data),
     getMyRepayments: () => api.get('/repayments/my-repayments').then(res => res.data),

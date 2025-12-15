@@ -22,17 +22,30 @@ namespace LendSecureSystem.Services
 
         public async Task<KycDocumentResponseDto> UploadDocumentAsync(Guid userId, KycUploadRequestDto request)
         {
-            // 1. Save file
+            // 1. FORENSICS: Validate File Content (Magic Bytes)
+            if (!IsValidFile(request.File))
+            {
+                throw new Exception("Security Alert: Invalid file format detected. Please upload a valid JPG, PNG, or PDF.");
+            }
+
+            // 2. Save file
             var filePath = await _fileStorage.SaveFileAsync(request.File, "kyc");
 
-            // 2. Create DB record
+            // 3. Determine Status (AI Check)
+            string status = "Pending";
+            if (request.IsVerified)
+            {
+                status = "Approved"; // Auto-approve if Client-Side AI confirmed it
+            }
+
+            // 4. Create DB record
             var doc = new KYCDocument
             {
                 DocId = Guid.NewGuid(),
                 UserId = userId,
                 DocType = request.DocType,
                 FilePath = filePath,
-                Status = "Pending"
+                Status = status
             };
 
             _context.KYCDocuments.Add(doc);
@@ -106,6 +119,34 @@ namespace LendSecureSystem.Services
                     Email = doc.User.Email
                 } : null
             };
+        }
+
+
+        private bool IsValidFile(Microsoft.AspNetCore.Http.IFormFile file)
+        {
+            try
+            {
+                if (file.Length < 1024) return false; // Reject tiny files (<1KB)
+
+                using (var stream = file.OpenReadStream())
+                {
+                    var header = new byte[4];
+                    stream.Read(header, 0, 4);
+                    
+                    // JPG: FF D8 FF
+                    // PNG: 89 50 4E 47
+                    // PDF: 25 50 44 46
+                    
+                    if (header[0] == 0xFF && header[1] == 0xD8 && header[2] == 0xFF) return true; // JPG
+                    if (header[0] == 0x89 && header[1] == 0x50 && header[2] == 0x4E && header[3] == 0x47) return true; // PNG
+                    if (header[0] == 0x25 && header[1] == 0x50 && header[2] == 0x44 && header[3] == 0x46) return true; // PDF
+                }
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

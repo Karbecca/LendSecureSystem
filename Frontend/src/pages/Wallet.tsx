@@ -9,14 +9,16 @@ import {
     ArrowUpRight,
     ArrowDownRight,
     Calendar,
-    DollarSign,
-    X
+    Smartphone,
+    CreditCard,
+    Building,
+    CheckCircle2,
+    Lock
 } from "lucide-react";
 import api from "../services/api";
 import { formatCurrency, cn } from "../lib/utils";
 import { Button } from "../components/ui/Button";
 import { Modal } from "../components/ui/Modal";
-import { VALIDATION, validateWalletAmount, getErrorMessage } from "../lib/validation";
 import { ExportButtons } from "../components/ui/ExportButtons";
 import { exportToCSV, exportToPDF, formatCurrencyForExport, formatDateForExport } from "../lib/export";
 
@@ -36,17 +38,41 @@ interface Transaction {
     createdAt: string;
 }
 
+const PROVIDERS = [
+    { id: 'Momo', name: 'MTN Mobile Money', icon: Smartphone, color: 'bg-yellow-400' },
+    { id: 'Airtel', name: 'Airtel Money', icon: Smartphone, color: 'bg-red-500' },
+    { id: 'BK', name: 'Bank of Kigali', icon: Building, color: 'bg-blue-600' },
+    { id: 'Equity', name: 'Equity Bank', icon: Building, color: 'bg-orange-700' },
+    { id: 'Visa', name: 'Visa / Mastercard', icon: CreditCard, color: 'bg-indigo-600' }
+];
+
 export default function Wallet() {
+    // Data State
     const [wallet, setWallet] = useState<WalletData | null>(null);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [isAddFundsOpen, setIsAddFundsOpen] = useState(false);
-    const [fundAmount, setFundAmount] = useState("");
-    const [isProcessing, setIsProcessing] = useState(false);
     const [filter, setFilter] = useState<"All" | "Credit" | "Debit">("All");
-    const [validationError, setValidationError] = useState<string | null>(null);
+
+    // Transaction Flow State
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [txnStep, setTxnStep] = useState<'SELECT' | 'INPUT' | 'OTP' | 'SUCCESS'>('SELECT');
+    const [txnType, setTxnType] = useState<'Deposit' | 'Withdraw'>('Deposit');
+    const [selectedProvider, setSelectedProvider] = useState<string | null>(null);
+
+    // Form State
+    const [amount, setAmount] = useState("");
+    const [accountParams, setAccountParams] = useState({ number: "", email: "" }); // Add Email separately? No, let's auto-fill or ask
+    const [otp, setOtp] = useState("");
+
+    // Processing State
+    const [currentTxnId, setCurrentTxnId] = useState<string | null>(null);
+    const [demoOtp, setDemoOtp] = useState<string | null>(null); // To show user if email fails
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
+        // Auto-fill email from user profile if possible, for now we will hardcode or ask user
+        // Let's assume we fetch user profile elsewhere, but for simplicity we'll just ask or use current user
         fetchWalletData();
     }, []);
 
@@ -67,28 +93,65 @@ export default function Wallet() {
         }
     };
 
-    const handleAddFunds = async () => {
-        const amount = parseFloat(fundAmount);
-        const error = validateWalletAmount(amount);
+    const handleInitiate = async () => {
+        if (!amount || !selectedProvider || !accountParams.number) return;
 
-        if (error) {
-            setValidationError(error);
-            return;
-        }
+        // Simulating getting email from logged in user or form
+        // For this demo, let's prompt or assume it's attached to the account
+        // We really need the email for the "Real Email" feature 1.
+        // Let's add an Email input to the form.
 
         try {
             setIsProcessing(true);
-            setValidationError(null);
-            await api.addFunds(amount);
-            setIsAddFundsOpen(false);
-            setFundAmount("");
-            fetchWalletData(); // Refresh data
-        } catch (error: any) {
-            console.error("Failed to add funds", error);
-            setValidationError(getErrorMessage(error));
+            setError(null);
+
+            const res = await api.initiateTransaction({
+                type: txnType,
+                amount: parseFloat(amount),
+                provider: selectedProvider,
+                accountNumber: accountParams.number,
+                email: accountParams.email // We need to add this input!
+            });
+
+            setCurrentTxnId(res.txnId);
+            setDemoOtp(res.developmentOtp); // Ideally hide this in prod, but show for demo "just in case"
+            setTxnStep('OTP');
+        } catch (err: any) {
+            setError(err.response?.data?.message || "Failed to initiate transaction");
         } finally {
             setIsProcessing(false);
         }
+    };
+
+    const handleConfirm = async () => {
+        if (!currentTxnId || !otp) return;
+
+        try {
+            setIsProcessing(true);
+            setError(null);
+
+            await api.confirmTransaction({
+                txnId: currentTxnId,
+                otp: otp
+            });
+
+            setTxnStep('SUCCESS');
+            fetchWalletData();
+        } catch (err: any) {
+            setError(err.response?.data?.message || "Invalid OTP");
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
+    const resetModal = () => {
+        setIsModalOpen(false);
+        setTxnStep('SELECT');
+        setAmount("");
+        setAccountParams({ number: "", email: "" });
+        setOtp("");
+        setSelectedProvider(null);
+        setError(null);
     };
 
     const filteredTransactions = transactions.filter(txn => {
@@ -117,7 +180,7 @@ export default function Wallet() {
             loanId: txn.relatedLoanId?.substring(0, 8) || '-',
             date: formatDateForExport(txn.createdAt)
         }));
-
+        // ... (Keep existing PDF logic columns/summary)
         const columns = [
             { header: 'Txn ID', dataKey: 'txnId' },
             { header: 'Type', dataKey: 'type' },
@@ -125,15 +188,14 @@ export default function Wallet() {
             { header: 'Loan ID', dataKey: 'loanId' },
             { header: 'Date', dataKey: 'date' }
         ];
-
         const summary = [
             { label: 'Current Balance', value: formatCurrencyForExport(wallet?.balance || 0, wallet?.currency || 'RWF') },
             { label: 'Total Transactions', value: filteredTransactions.length.toString() },
             { label: 'Filter', value: filter }
         ];
-
         exportToPDF(exportData, columns, 'Wallet Transactions', 'wallet-transactions', summary);
     };
+
 
     const getTransactionIcon = (type: string) => {
         return type.toLowerCase().includes("credit") ? (
@@ -163,7 +225,7 @@ export default function Wallet() {
                 <p className="text-slate-500 text-sm mt-1">Manage your funds and view transaction history</p>
             </div>
 
-            {/* Wallet Balance & Stats Grid - REDESIGNED */}
+            {/* Wallet Balance & Stats Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Main Balance Card */}
                 <motion.div
@@ -184,15 +246,24 @@ export default function Wallet() {
                                     <h2 className="text-3xl font-bold mt-0.5">{formatCurrency(wallet?.balance || 0)}</h2>
                                 </div>
                             </div>
-                            <Button
-                                onClick={() => setIsAddFundsOpen(true)}
-                                className="bg-white hover:bg-white/90 shadow-lg"
-                                style={{ color: '#0066CC' }}
-                                size="sm"
-                            >
-                                <Plus className="h-4 w-4 mr-2" />
-                                Add Funds
-                            </Button>
+                            <div className="flex gap-2">
+                                <Button
+                                    onClick={() => { setTxnType('Withdraw'); setIsModalOpen(true); }}
+                                    className="bg-white/10 hover:bg-white/20 text-white border-0"
+                                    size="sm"
+                                >
+                                    <ArrowUpRight className="h-4 w-4 mr-2" />
+                                    Withdraw
+                                </Button>
+                                <Button
+                                    onClick={() => { setTxnType('Deposit'); setIsModalOpen(true); }}
+                                    className="bg-white hover:bg-white/90 shadow-lg text-[#0066CC]"
+                                    size="sm"
+                                >
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Add Funds
+                                </Button>
+                            </div>
                         </div>
                         <div className="flex items-center gap-2 text-white/70 text-xs">
                             <Calendar className="h-3.5 w-3.5" />
@@ -240,7 +311,7 @@ export default function Wallet() {
                 </motion.div>
             </div>
 
-            {/* Transaction History */}
+            {/* Transaction History Table */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100">
                 <div className="p-6 border-b border-slate-100">
                     <div className="flex items-center justify-between mb-4">
@@ -320,70 +391,134 @@ export default function Wallet() {
                 </div>
             </div>
 
-            {/* Add Funds Modal */}
-            <Modal isOpen={isAddFundsOpen} onClose={() => !isProcessing && setIsAddFundsOpen(false)} title="Add Funds to Wallet">
+            {/* PROCESS TRANSACTION MODAL */}
+            <Modal isOpen={isModalOpen} onClose={resetModal} title={`${txnType} Money`}>
                 <div className="p-6">
-                    <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-xl font-bold text-slate-800">Add Funds</h3>
-                        <button
-                            onClick={() => setIsAddFundsOpen(false)}
-                            disabled={isProcessing}
-                            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
-                        >
-                            <X className="h-5 w-5 text-slate-400" />
-                        </button>
-                    </div>
-
-                    <div className="mb-6">
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
-                            Amount ({wallet?.currency})
-                        </label>
-                        <div className="relative">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">RWF</span>
-                            <input
-                                type="number"
-                                value={fundAmount}
-                                onChange={(e) => {
-                                    setFundAmount(e.target.value);
-                                    setValidationError(null);
-                                }}
-                                placeholder="0.00"
-                                min={VALIDATION.WALLET.ADD_FUNDS.MIN}
-                                max={VALIDATION.WALLET.ADD_FUNDS.MAX}
-                                className={cn(
-                                    "w-full pl-14 pr-4 py-3 border rounded-xl focus:ring-2 outline-none transition-all",
-                                    validationError
-                                        ? "border-red-300 focus:ring-red-500/20 focus:border-red-500"
-                                        : "border-slate-200 focus:border-slate-400"
-                                )}
-                            />
+                    {/* STEP 1: SELECT PROVIDER */}
+                    {txnStep === 'SELECT' && (
+                        <div className="space-y-4">
+                            <p className="text-sm text-slate-500 mb-4">Select your preferred payment gateway</p>
+                            <div className="grid grid-cols-2 gap-3">
+                                {PROVIDERS.map((p) => (
+                                    <button
+                                        key={p.id}
+                                        onClick={() => { setSelectedProvider(p.id); setTxnStep('INPUT'); }}
+                                        className="flex flex-col items-center justify-center p-4 border border-slate-200 rounded-xl hover:border-[#0066CC] hover:bg-blue-50 transition-all gap-2 group"
+                                    >
+                                        <div className={cn("p-2 rounded-full text-white", p.color)}>
+                                            <p.icon className="h-5 w-5" />
+                                        </div>
+                                        <span className="text-sm font-medium text-slate-700 group-hover:text-[#0066CC]">{p.name}</span>
+                                    </button>
+                                ))}
+                            </div>
                         </div>
-                        {validationError ? (
-                            <p className="text-red-500 text-sm mt-2">{validationError}</p>
-                        ) : (
-                            <p className="text-slate-400 text-xs mt-2">{VALIDATION.WALLET.ADD_FUNDS.LABEL}</p>
-                        )}
-                    </div>
+                    )}
 
-                    <Button
-                        onClick={handleAddFunds}
-                        disabled={isProcessing || !fundAmount}
-                        className="w-full"
-                    >
-                        {isProcessing ? (
-                            <>
-                                <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                                Processing...
-                            </>
-                        ) : (
-                            <>
-                                <DollarSign className="h-5 w-5 mr-2" />
-                                Add Funds
-                            </>
-                        )}
-                    </Button>
+                    {/* STEP 2: INPUT DETAILS */}
+                    {txnStep === 'INPUT' && (
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-2 text-sm text-[#0066CC] font-medium bg-blue-50 p-2 rounded-lg mb-2">
+                                <span className={cn("w-2 h-2 rounded-full", PROVIDERS.find(p => p.id === selectedProvider)?.color)}></span>
+                                Using {PROVIDERS.find(p => p.id === selectedProvider)?.name}
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Amount (RWF)</label>
+                                <input
+                                    type="number"
+                                    value={amount}
+                                    onChange={e => setAmount(e.target.value)}
+                                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#0066CC] outline-none"
+                                    placeholder="5000"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">
+                                    {selectedProvider === 'Visa' ? 'Card Number' : 'Phone Number'}
+                                </label>
+                                <input
+                                    type="text"
+                                    value={accountParams.number}
+                                    onChange={e => setAccountParams({ ...accountParams, number: e.target.value })}
+                                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#0066CC] outline-none"
+                                    placeholder={selectedProvider === 'Visa' ? '1234 5678 9012 3456' : '078...'}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Email (For OTP)</label>
+                                <input
+                                    type="email"
+                                    value={accountParams.email}
+                                    onChange={e => setAccountParams({ ...accountParams, email: e.target.value })}
+                                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#0066CC] outline-none"
+                                    placeholder="you@example.com"
+                                />
+                            </div>
+
+                            {error && <p className="text-red-500 text-xs">{error}</p>}
+
+                            <div className="flex gap-2 pt-2">
+                                <Button variant="outline" className="w-full" onClick={() => setTxnStep('SELECT')}>Back</Button>
+                                <Button className="w-full" onClick={handleInitiate} disabled={isProcessing}>
+                                    {isProcessing ? <Loader2 className="animate-spin h-4 w-4" /> : 'Continue'}
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* STEP 3: OTP VERIFICATION */}
+                    {txnStep === 'OTP' && (
+                        <div className="space-y-4 text-center">
+                            <div className="bg-blue-50 w-12 h-12 rounded-full flex items-center justify-center mx-auto">
+                                <Lock className="h-6 w-6 text-[#0066CC]" />
+                            </div>
+                            <h3 className="text-lg font-bold">Verify Transaction</h3>
+                            <p className="text-sm text-slate-500">
+                                Enter the code sent to {accountParams.email}.<br />
+                                <span className="text-xs text-slate-400">(Demo: {demoOtp})</span>
+                            </p>
+
+                            <input
+                                type="text"
+                                value={otp}
+                                onChange={e => setOtp(e.target.value)}
+                                className="w-full text-center text-2xl tracking-widest px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#0066CC] outline-none"
+                                placeholder="000 000"
+                                maxLength={6}
+                            />
+
+                            {error && <p className="text-red-500 text-xs">{error}</p>}
+
+                            <Button className="w-full" onClick={handleConfirm} disabled={isProcessing}>
+                                {isProcessing ? <Loader2 className="animate-spin h-4 w-4" /> : 'Confirm Payment'}
+                            </Button>
+                        </div>
+                    )}
+
+                    {/* STEP 4: SUCCESS */}
+                    {txnStep === 'SUCCESS' && (
+                        <div className="space-y-4 text-center pt-4">
+                            <motion.div
+                                initial={{ scale: 0.5, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                className="bg-emerald-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto"
+                            >
+                                <CheckCircle2 className="h-8 w-8 text-emerald-600" />
+                            </motion.div>
+                            <h3 className="text-xl font-bold text-slate-800">Payment Successful!</h3>
+                            <p className="text-slate-500 text-sm">
+                                Your {txnType.toLowerCase()} of {formatCurrency(parseFloat(amount))} RWF was processed.
+                            </p>
+                            <Button className="w-full bg-slate-900" onClick={resetModal}>
+                                Done
+                            </Button>
+                        </div>
+                    )}
                 </div>
             </Modal>
-        </div >
+        </div>
     );
 }

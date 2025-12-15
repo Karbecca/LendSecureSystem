@@ -10,5 +10,6 @@ namespace LendSecureSystem.Services
         Task<WalletResponseDto> GetWalletAsync(Guid userId);
         Task<List<TransactionResponseDto>> GetTransactionsAsync(Guid userId);
         Task<WalletResponseDto> AddFundsAsync(Guid userId, decimal amount);
+        Task<WalletResponseDto> WithdrawFundsAsync(Guid userId, decimal amount);
     }
 }
