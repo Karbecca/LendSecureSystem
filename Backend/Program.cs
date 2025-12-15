@@ -198,6 +198,16 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+// ========================================
+// RENDER FIX: Ensure wwwroot exists for file storage
+// ========================================
+var wwwrootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+if (!Directory.Exists(wwwrootPath))
+{
+    Directory.CreateDirectory(wwwrootPath);
+    Console.WriteLine($"[Startup] Created wwwroot directory at: {wwwrootPath}");
+}
+
 // Static Files
 app.UseStaticFiles();
 

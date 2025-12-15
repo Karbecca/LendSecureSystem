@@ -27,6 +27,7 @@ namespace LendSecureSystem.Services
             if (!Directory.Exists(uploadsFolder))
             {
                 Directory.CreateDirectory(uploadsFolder);
+                Console.WriteLine($"[FileStorage] Created directory: {uploadsFolder}");
             }
 
             // Generate unique filename
@@ -38,6 +39,9 @@ namespace LendSecureSystem.Services
             {
                 await file.CopyToAsync(fileStream);
             }
+
+            Console.WriteLine($"[FileStorage] Saved file: {filePath} ({file.Length} bytes)");
+            Console.WriteLine($"[FileStorage] NOTE: Render uses ephemeral storage - file will be lost on restart");
 
             // Return relative path for database storage
             return Path.Combine("uploads", folderName, uniqueFileName).Replace("\\", "/");
